@@ -1,19 +1,23 @@
 #!/usr/bin/env bash
 
 
+################################################################################
+# File name and path
+################################################################################
 
-
-# Filename
+# Name of the output file
 DATE=$(date +%Y-%m-%d)
 TIME=$(date +%H.%M.%S)
-NAME="Screencat ${DATE} at ${TIME}"
+NAME="Screencast ${DATE} at ${TIME}"
 
 # Where to save it
-DIR="${HOME}/Desktop/"
+DIR="${HOME}/Desktop"
 
 
-# FFmpeg options
-# -------------------
+################################################################################
+# FFmpeg Options
+################################################################################
+
 # Get current resolution
 #RESO=$(system_profiler SPDisplaysDataType | grep Resolution)
 #WIDTH=$(echo $RESO | awk '{print $2}')
@@ -26,22 +30,39 @@ DIR="${HOME}/Desktop/"
 #PRESET="ultrafast"
 #PIXFMT="uyvy422"
 
-#ffmpeg -f avfoundation -i "${INPUT_DEV}" -video_size ${WIDTH}x${HEIGHT} -framerate 25 -c:v libx264 ${LOSSLESS} -preset ${PRESET} -pix_fmt ${PIXFMT} "${NAME}"
 
+# Specify the container format.
+# @param string FF_CONTAINER (mkv, avi)
 FF_CONTAINER="mkv"
+
+
+# Specify franes per second
+# @param integer FF_FRAME_RATE
 FF_FRAME_RATE="30"
 
 
 
+
+################################################################################
+# VARIABLES (DO NOT EDIT)
+################################################################################
+
 OPTIONS="-framerate ${FF_FRAME_RATE} "
+# ffmpeg -f avfoundation -i 1 -c:v libx264rgb -crf 0 -preset:v ultrafast -c:a pcm_s16le -af aresample=async=1:first_pts=0 out.mkv
 
 
 
 
+################################################################################
+# MAIN ENTRY POINT
+################################################################################
+
+# Check if ffmpeg exists
 if ! command -v ffmpeg > /dev/null 2>&1; then
 	echo "ffmpeg not found."
 	exit 1
 fi
+
 
 
 # TODO: Linux & BSD
@@ -54,6 +75,7 @@ if [ "$(uname)" = "Darwin" ]; then
 	DEVICE_NAMES="$(ffmpeg -f avfoundation -list_devices true -i '' 2>&1 | grep 'Capture screen' | grep -o '\[[0-9]\].*$')"
 	DEVICE_INDEX="$(echo "${DEVICE_NAMES}" | grep -o '\[[0-9]\]' | sed 's/\[//g' | sed 's/\]//g')"
 fi
+
 
 
 # If no default device is set, ask the user to choose one
@@ -69,14 +91,16 @@ if [ -z ${VIDEO+x} ]; then
 	VIDEO="${dn}"
 fi
 
+
+
 # Start recording
 if [ "$(uname)" = "Darwin" ]; then
 
 	# show command
-	echo "ffmpeg -f avfoundation -i \"${VIDEO}\" ${OPTIONS} \"${DIR}/${NAME}.${FF_CONTAINER}\""
+	echo "ffmpeg -hide_banner -loglevel info  -f avfoundation -i \"${VIDEO}\" ${OPTIONS} \"${DIR}/${NAME}.${FF_CONTAINER}\""
 	echo ""
 
 	# start
-	ffmpeg -f avfoundation ${OPTIONS} -i "${VIDEO}" "${DIR}/${NAME}.${FF_CONTAINER}"
+	ffmpeg -hide_banner -loglevel info -f avfoundation ${OPTIONS} -i "${VIDEO}" "${DIR}/${NAME}.${FF_CONTAINER}"
 fi
 
