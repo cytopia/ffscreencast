@@ -38,7 +38,7 @@ FF_CONTAINER="mkv"
 
 # Specify franes per second
 # @param integer FF_FRAME_RATE
-FF_FRAME_RATE="30"
+#FF_FRAME_RATE="30"
 
 
 
@@ -47,9 +47,154 @@ FF_FRAME_RATE="30"
 # VARIABLES (DO NOT EDIT)
 ################################################################################
 
-OPTIONS="-framerate ${FF_FRAME_RATE} "
+#OPTIONS="-framerate ${FF_FRAME_RATE} "
 # ffmpeg -f avfoundation -i 1 -c:v libx264rgb -crf 0 -preset:v ultrafast -c:a pcm_s16le -af aresample=async=1:first_pts=0 out.mkv
 
+################################################################################
+# FUNCTIONS
+################################################################################
+
+usage() {
+	printf "%s %s %s\n" "Usage:" "${0}" "[-s[num]] [-a[num]] [-c[num]]"
+	printf "%s %s %s\n" "      " "${0}" "--slist"
+	printf "%s %s %s\n" "      " "${0}" "--alist"
+	printf "%s %s %s\n" "      " "${0}" "--clist"
+	echo
+	echo "When invoked without any arguments, it will start"
+	echo "screen recording on the default screen without sound"
+	echo "and without camera overlay."
+	echo
+	echo "Recording options (can be combined):"
+	echo "-s[num]       (Default) Enable screen capturing [with device number X]"
+	echo "-a[num]       Enable audio capturing [with device number X]"
+	echo "-c[num]       Add camera overlay [with device number X]"
+	echo
+	echo "Display options:"
+	echo "--slist       List screen capturing devices"
+	echo "--alist       List audio capturing devices"
+	echo "--clist       List camera capturing devices"
+	echo "--help        Show this help screen"
+}
+
+
+
+################################################################################
+# Get OS dependent device names
+################################################################################
+get_screen_device_names() {
+	# TODO: Linux
+	DEVICE_NAMES="$(ffmpeg -f avfoundation -list_devices true -i '' 2>&1 | grep 'AVFoundation input' | sed -n '/AVFoundation video/,/AVFoundation audio/p' | grep -oE '\[[0-9]\].*$' | grep 'Capture screen')"
+	echo "${DEVICE_NAMES}"
+}
+get_audio_device_names() {
+	# TODO: Linux
+	DEVICE_NAMES="$(ffmpeg -f avfoundation -list_devices true -i '' 2>&1 | grep 'AVFoundation input' | sed -n '/AVFoundation audio/,$p' | grep -oE '\[[0-9]\].*$')"
+	echo "${DEVICE_NAMES}"
+}
+get_camera_device_names() {
+	# TODO: Linux
+	DEVICE_NAMES="$(ffmpeg -f avfoundation -list_devices true -i '' 2>&1 | grep 'AVFoundation input' | sed -n '/AVFoundation video/,/AVFoundation audio/p' | grep -oE '\[[0-9]\].*$' | grep 'Camera')"
+	echo "${DEVICE_NAMES}"
+}
+
+
+################################################################################
+# Get device indices
+################################################################################
+get_screen_device_indices() {
+	devices="$(get_screen_device_names | grep -o '\[[0-9]\]' | sed 's/\[//g' | sed 's/\]//g')"
+	echo $devices
+}
+get_audio_device_indices() {
+	devices="$(get_audio_device_names | grep -o '\[[0-9]\]' | sed 's/\[//g' | sed 's/\]//g')"
+	echo $devices
+}
+get_camera_device_indices() {
+	devices="$(get_camera_device_names | grep -o '\[[0-9]\]' | sed 's/\[//g' | sed 's/\]//g')"
+	echo $devices
+}
+
+
+################################################################################
+# Count devices
+################################################################################
+count_screen_devices() {
+	devices="$(get_screen_device_names | grep -c '')"
+	echo $devices
+}
+count_audio_devices() {
+	devices="$(get_audio_device_names | grep -c '')"
+	echo $devices
+}
+count_camera_devices() {
+	devices="$(get_camera_device_names | grep -c '')"
+	echo $devices
+}
+
+
+
+################################################################################
+# Check if device indices exist
+################################################################################
+screen_device_exists() {
+	index=$1
+	indices="$(get_screen_device_indices)"
+	[[ $indices =~ $index ]] && return 0 || return 1
+}
+audio_device_exists() {
+	index=$1
+	indices="$(get_audio_device_indices)"
+	[[ $indices =~ $index ]] && return 0 || return 1
+}
+camera_device_exists() {
+	index=$1
+	indices="$(get_audio_device_indices)"
+	[[ $indices =~ $index ]] && return 0 || return 1
+}
+
+
+################################################################################
+# Interactively choose devices
+################################################################################
+choose_screen_device() {
+	indices="$(get_screen_device_indices)"
+
+	# List available devices
+	printf "$(tput setaf 2)Available devices:$(tput sgr0)\n%s\n" "$(get_screen_device_names)"
+
+	# Ask for device number
+	while true; do
+		read -p "$(tput setaf 2)Enter device number:$(tput sgr0) " dn < /dev/tty
+		[[ $indices =~ $dn ]] && break || echo 'Wrong device number'
+	done
+	return $dn
+}
+choose_audio_device() {
+	indices="$(get_audio_device_indices)"
+
+	# List available devices
+	printf "$(tput setaf 2)Available devices:$(tput sgr0)\n%s\n" "$(get_audio_device_names)"
+
+	# Ask for device number
+	while true; do
+		read -p "$(tput setaf 2)Enter device number:$(tput sgr0) " dn < /dev/tty
+		[[ $indices =~ $dn ]] && break || echo 'Wrong device number'
+	done
+	return $dn
+}
+choose_camera_device() {
+	indices="$(get_camera_device_indices)"
+
+	# List available devices
+	printf "$(tput setaf 2)Available devices:$(tput sgr0)\n%s\n" "$(get_camera_device_names)"
+
+	# Ask for device number
+	while true; do
+		read -p "$(tput setaf 2)Enter device number:$(tput sgr0) " dn < /dev/tty
+		[[ $indices =~ $dn ]] && break || echo 'Wrong device number'
+	done
+	return $dn
+}
 
 
 
@@ -65,42 +210,149 @@ fi
 
 
 
-# TODO: Linux & BSD
-if [ "$(uname)" = "Darwin" ]; then
+# Enable screen recording
+screen=yes
 
-	# If only one device is present, pre-select it as the default device
-	if [ "$(ffmpeg -f avfoundation -list_devices true -i '' 2>&1 | grep 'Capture screen' -c)" = "1" ]; then
-		VIDEO="$(ffmpeg -f avfoundation -list_devices true -i '' 2>&1 | grep 'Capture screen' | grep -o '\[[0-9]\]' | sed 's/\[//g' | sed 's/\]//g')"
+
+while [ $# -gt 0  ]; do
+	case "$1" in
+
+		# Screen recording
+		-s | -s[0-9]*)
+			screen=yes
+			arg="$(echo "$1" | sed 's/-s//g')"
+			if [ ${#arg} -gt 0 ]; then
+				if ! screen_device_exists $arg ; then
+					echo "Screen recording device '${arg}' does not exist."
+					exit -1
+				fi
+				screen_device=$arg
+			fi
+			;;
+
+		# Audio recording
+		-a)
+			audio=yes
+			arg="$(echo "$1" | sed 's/-a//g')"
+			if [ ${#arg} -gt 0 ]; then
+				if ! audio_device_exists $arg ; then
+					echo "Audio recording device '${arg}' does not exist."
+					exit -1
+				fi
+				audio_device=$arg
+			fi
+			;;
+
+		# Camera recording overlay
+		-c)
+			camera=yes
+			arg="$(echo "$1" | sed 's/-c//g')"
+			if [ ${#arg} -gt 0 ]; then
+				if ! camera_device_exists $arg ; then
+					echo "Camera recording device '${arg}' does not exist."
+					exit -1
+				fi
+				camera_device=$arg
+			fi
+			;;
+
+		--slist)
+			echo "Available screen recording devices:"
+			echo
+			get_screen_device_names
+			exit 0
+			;;
+		--alist)
+			echo "Available audio recording devices:"
+			echo
+			get_audio_device_names
+			exit 0
+			;;
+		--clist)
+			echo "Available camera recording devices:"
+			echo
+			get_camera_device_names
+			exit 0
+			;;
+		--help)
+			usage
+			exit 0
+			;;
+
+		-*)
+			echo "Invalid argument."
+			echo "Type '${0} --help' for available options."
+			exit 1
+			;;
+
+		*)
+			echo "TODO:"
+			break;;
+	esac
+	shift
+done
+
+
+
+# Does the user want screen recording?
+if [ ! -z ${screen+x} ]; then
+	# If screen device was not set via argument list, choose one
+	if [ -z ${screen_device+x} ]; then
+		# Use default screen if only one screen exists
+		if [ "$(count_screen_devices)" = "1" ]; then
+			screen_device=$(get_screen_device_indices)
+		else
+			choose_screen_device
+			screen_device=$?
+		fi
 	fi
-	DEVICE_NAMES="$(ffmpeg -f avfoundation -list_devices true -i '' 2>&1 | grep 'Capture screen' | grep -o '\[[0-9]\].*$')"
-	DEVICE_INDEX="$(echo "${DEVICE_NAMES}" | grep -o '\[[0-9]\]' | sed 's/\[//g' | sed 's/\]//g')"
+fi
+
+# Does the user want audio?
+if [ ! -z ${audio+x} ]; then
+	if [ -z ${audio_device+x} ]; then
+		# Use default audio if only one audio device exists
+		if [ "$(count_audio_devices)" = "1" ]; then
+			audio_device=$(get_audio_device_indices)
+		else
+			choose_audio_device
+			audio_device=$?
+		fi
+	fi
+fi
+
+# Does the user want camera overlay?
+if [ ! -z ${camera+x} ]; then
+	if [ -z ${camera_device+x} ]; then
+		# Use default camera if only one camera exists
+		if [ "$(count_camera_devices)" = "1" ]; then
+			camera_device=$(get_camera_device_indices)
+		else
+			choose_camera_device
+			camera_device=$?
+		fi
+	fi
 fi
 
 
 
-# If no default device is set, ask the user to choose one
-if [ -z ${VIDEO+x} ]; then
-	# List available devices
-	printf "$(tput setaf 2)Available devices:$(tput sgr0)\n%s\n" "${DEVICE_NAMES}"
 
-	# Ask for device number
-	while true; do
-		read -p "$(tput setaf 2)Enter device number:$(tput sgr0) " dn < /dev/tty
-		[[ $DEVICE_INDEX =~ $dn ]] && break || echo 'Wrong device number'
-	done
-	VIDEO="${dn}"
+# TODO: Add Linux support
+
+if [ ! -z ${audio+x} ]; then
+	audio_device=":${audio_device}"
+else
+	audio_device=""
 fi
 
 
-
-# Start recording
-if [ "$(uname)" = "Darwin" ]; then
-
-	# show command
-	echo "ffmpeg -hide_banner -loglevel info  -f avfoundation -i \"${VIDEO}\" ${OPTIONS} \"${DIR}/${NAME}.${FF_CONTAINER}\""
-	echo ""
-
-	# start
-	ffmpeg -hide_banner -loglevel info -f avfoundation ${OPTIONS} -i "${VIDEO}" "${DIR}/${NAME}.${FF_CONTAINER}"
+if [ ! -z ${camera+x} ]; then
+	ffmpeg \
+		-f avfoundation -framerate 30 -i ${screen_device} \
+		-f avfoundation -framerate 30 -video_size 1280x720 -i ${camera_device} \
+		-filter_complex "overlay=main_w-overlay_w-10:main_h-overlay_h-10" \
+		"${DIR}/${NAME}.${FF_CONTAINER}"
+else
+	ffmpeg -hide_banner -loglevel info -f avfoundation -i "${screen_device}${audio_device}" "${DIR}/${NAME}.${FF_CONTAINER}"
 fi
 
