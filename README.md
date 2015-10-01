@@ -1,11 +1,12 @@
 # ffscreencast
 
 [Features](https://github.com/cytopia/ffscreencast#1-features) |
-[Screenshots](https://github.com/cytopia/ffscreencast#2-screenshots) |
-[Todo](https://github.com/cytopia/ffscreencast#3-todo) |
-[Contribution](https://github.com/cytopia/ffscreencast#4-contribution) |
-[License](https://github.com/cytopia/ffscreencast#5-license) |
-[Version](https://github.com/cytopia/ffscreencast#6-version)
+[Usage](https://github.com/cytopia/ffscreencast#2-usage) |
+[Screenshots](https://github.com/cytopia/ffscreencast#3-screenshots) |
+[Todo](https://github.com/cytopia/ffscreencast#4-todo) |
+[Contribution](https://github.com/cytopia/ffscreencast#5-contribution) |
+[License](https://github.com/cytopia/ffscreencast#6-license) |
+[Version](https://github.com/cytopia/ffscreencast#7-version)
 
 [![Build Status](https://travis-ci.org/cytopia/ffscreencast.svg?branch=master)](https://travis-ci.org/cytopia/ffscreencast)
 [![Latest Stable Version](https://poser.pugx.org/cytopia/ffscreencast/v/stable)](https://packagist.org/packages/cytopia/ffscreencast) [![Total Downloads](https://poser.pugx.org/cytopia/ffscreencast/downloads)](https://packagist.org/packages/cytopia/ffscreencast) [![Latest Unstable Version](https://poser.pugx.org/cytopia/ffscreencast/v/unstable)](https://packagist.org/packages/cytopia/ffscreencast) [![License](https://poser.pugx.org/cytopia/ffscreencast/license)](http://opensource.org/licenses/MIT)
@@ -35,24 +36,27 @@ ffscreencast is a shell wrapper for ffmpeg to allow easy screen recording includ
 * Allows to manually (parameter) or interactively choose camera
 * Allows to manually (parameter) or interactively choose sound device
 
+## 2. Usage
 
-## 2. Screenshots
+todo
+
+## 3. Screenshots
 
 
 
-## 3. Todo
+## 4. Todo
 
 * Sound is still not working properly
 * Support for Linux and BSD
 
 
-## 4. Contribution
+## 5. Contribution
 Contributors are welcome.
 
 
-## 5. License
+## 6. License
 [![license](https://poser.pugx.org/cytopia/ffscreencast/license)](http://opensource.org/licenses/mit)
 
 
-## 6. Version
+## 7. Version
 For a complete list of verion see [CHANGELOG](CHANGELOG.md)
