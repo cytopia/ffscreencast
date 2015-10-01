@@ -40,7 +40,29 @@ ffscreencast is a shell wrapper for ffmpeg that allows easy screen recording inc
 
 ## 2. Usage
 
-todo
+To simply start desktop recording your screen call the program without any arguments `ffscreencast` and it will use the default screen without camera overlay and without sound.
+
+```shell
+Usage: ffscreencast [-s[num]] [-a[num]] [-c[num]]
+       ffscreencast --slist
+       ffscreencast --alist
+       ffscreencast --clist
+
+When invoked without any arguments, it will start
+screen recording on the default screen without sound
+and without camera overlay.
+
+Recording options (can be combined):
+-s[num]       (Default) Enable screen capturing [with device number X]
+-a[num]       Enable audio capturing [with device number X]
+-c[num]       Add camera overlay [with device number X]
+
+Display options:
+--slist       List screen capturing devices
+--alist       List audio capturing devices
+--clist       List camera capturing devices
+--help        Show this help screen
+```
 
 ## 3. Screenshots
 
