@@ -12,7 +12,9 @@
 [![Latest Stable Version](https://poser.pugx.org/cytopia/ffscreencast/v/stable)](https://packagist.org/packages/cytopia/ffscreencast) [![Total Downloads](https://poser.pugx.org/cytopia/ffscreencast/downloads)](https://packagist.org/packages/cytopia/ffscreencast) [![Latest Unstable Version](https://poser.pugx.org/cytopia/ffscreencast/v/unstable)](https://packagist.org/packages/cytopia/ffscreencast) [![License](https://poser.pugx.org/cytopia/ffscreencast/license)](http://opensource.org/licenses/MIT)
 [![Type](https://img.shields.io/badge/type-bash-red.svg)](https://www.gnu.org/software/bash/)
 
-ffscreencast is a shell wrapper for ffmpeg to allow easy screen recording including camera overlay and also works with multiple screens.
+ffscreencast is a shell wrapper for ffmpeg that allows easy screen recording including camera overlay. It works with multiple monitors and camera devices.
+
+[![OSX](https://raw.githubusercontent.com/cytopia/ffscreencast/master/img/ffscreencast.png)](https://www.apple.com/osx)
 
 
 ##### Tested on
