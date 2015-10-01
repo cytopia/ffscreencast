@@ -1,7 +1,7 @@
 # ffscreencast
 
 [Features](https://github.com/cytopia/ffscreencast#1-features) |
-[Screenshots](https://github.com/cytopia/ffscreencast#2-fscreenshots) |
+[Screenshots](https://github.com/cytopia/ffscreencast#2-screenshots) |
 [Todo](https://github.com/cytopia/ffscreencast#3-todo) |
 [Contribution](https://github.com/cytopia/ffscreencast#4-contribution) |
 [License](https://github.com/cytopia/ffscreencast#5-license) |
