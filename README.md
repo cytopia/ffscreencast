@@ -66,6 +66,8 @@ Display options:
 
 ## 3. Screenshots
 
+Showing screen recording with and without camera overlay.
+
 ![Screencast](https://raw.githubusercontent.com/cytopia/ffscreencast/master/img/ffscreencast.png)
 ![Screencast](https://raw.githubusercontent.com/cytopia/ffscreencast/master/img/ffscreencast2.png)
 
