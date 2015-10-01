@@ -1,0 +1,15 @@
+{
+	"name": "cytopia/ffscreencast",
+	"description": "ffmpeg screencast with video overlay and multi monitor support.",
+	"type": "library",
+	"keywords": ["screencast", "screen recording", "ffmpeg"],
+	"homepage": "https://github.com/cytopia/ffscreencast",
+	"license": "MIT",
+	"authors": [
+		{
+			"name" : "Patrick Plocke",
+			"homepage": "https://github.com/cytopia",
+			"role": "Developer"
+		}
+	]
+}
