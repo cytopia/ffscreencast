@@ -30,6 +30,9 @@
 | ------------- | ------------- | -------- |
 | [bash](https://www.gnu.org/software/bash/)  | yes  | The whole script is written in bash and might not be 100% Posix compliant |
 | [ffmpeg](https://www.ffmpeg.org/)  | yes  | The ffmpeg binary must be present |
+| [v4l2-ctl](http://linuxtv.org/wiki/index.php/V4l-utils) | Linux | Required for linux to list camera devices |
+| [arecord](http://linux.die.net/man/1/arecord) | Linux | Required for linux to list sound devices |
+| [xdpyinfo](http://www.x.org/archive/X11R7.6/doc/man/man1/xdpyinfo.1.xhtml) | Linux | Required for linux to list screends |
 
 
 ## 1. Features
