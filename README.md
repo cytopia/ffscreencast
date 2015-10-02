@@ -12,7 +12,9 @@
 [![Latest Stable Version](https://poser.pugx.org/cytopia/ffscreencast/v/stable)](https://packagist.org/packages/cytopia/ffscreencast) [![Total Downloads](https://poser.pugx.org/cytopia/ffscreencast/downloads)](https://packagist.org/packages/cytopia/ffscreencast) [![Latest Unstable Version](https://poser.pugx.org/cytopia/ffscreencast/v/unstable)](https://packagist.org/packages/cytopia/ffscreencast) [![License](https://poser.pugx.org/cytopia/ffscreencast/license)](http://opensource.org/licenses/MIT)
 [![Type](https://img.shields.io/badge/type-bash-red.svg)](https://www.gnu.org/software/bash/)
 
-`ffscreencast` is a shell wrapper for `ffmpeg` that allows easy screen recording via the command line. It will auto-detect all available monitors, cameras and microphones and is able to interactively or manually choose the desired recording device(s). Additionally `ffscreencast` will let you overlay the camera stream on top of the desktop session.
+
+##### About
+`ffscreencast` is a shell wrapper for `ffmpeg` that allows fool-proof screen recording via the command line. It will auto-detect all available monitors, cameras and microphones and is able to interactively or manually choose the desired recording device(s). Additionally `ffscreencast` will let you overlay the camera stream on top of the desktop session.
 
 
 ![Screencast](https://raw.githubusercontent.com/cytopia/ffscreencast/master/img/ffscreencast.png)
@@ -41,9 +43,13 @@
 
 ## 2. Usage
 
+### 2.1 Overview
+
 To simply start desktop recording your screen call the program without any arguments `ffscreencast` and it will use the default screen without camera overlay and without sound.
 
 ```shell
+$ ffscreencast
+
 Usage: ffscreencast [-s[num]] [-a[num]] [-c[num]]
        ffscreencast --slist
        ffscreencast --alist
@@ -64,6 +70,44 @@ Display options:
 --clist       List camera capturing devices
 --help        Show this help screen
 ```
+
+The `num` (device numbers) can be omitted. If there is only one device of its type available, `ffscreencast` will automatically default to this device, otherwise it will ask interactively which device to use for recording. 
+
+### 2.2 Examples
+
+Do a screencast on the default screen (without explicitly choosing the monitor)
+```shell
+$ ffscreencast
+```
+
+List monitors and record on monitor 2
+```shell
+$ ffscreencast --slist
+Available screen recording devices:
+
+[1] Capture screen 0
+[2] Capture screen 1
+
+$ ffscreencast -s2
+```
+
+List cameras
+```shell
+$ ffscreencast --clist
+Available camera recording devices:
+
+[0] FaceTime HD Camera
+```
+
+Start a screencast with camera overlay (only one camera present)
+```shell
+$ ffscreencast -c
+```
+or select the camera device
+```shell
+$ ffscreencast -c0
+```
+
 
 ## 3. Screenshots
 
