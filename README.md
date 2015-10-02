@@ -69,6 +69,7 @@ Display options:
 --alist       List audio capturing devices
 --clist       List camera capturing devices
 --help        Show this help screen
+--version     Show version information
 ```
 
 The `num` (device numbers) can be omitted. If there is only one device of its type available, `ffscreencast` will automatically default to this device, otherwise it will ask interactively which device to use for recording. 
