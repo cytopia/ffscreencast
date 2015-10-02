@@ -1,4 +1,17 @@
 #!/usr/bin/env bash
+#
+# @author    Patrick Plocke <patrick@plocke.de>
+# @gpg key   0x28BF179F
+# @date      2015-09-02
+# @licencse  MIT http://opensource.org/licenses/MIT
+# @version   0.1
+INFO_AUTHOR="Patrick Plocke <patrick@plocke.de>"
+INFO_GPGKEY="0x28BF179F"
+INFO_DATE="2015-09-02"
+INFO_LICENSE="MIT"
+INFO_VERSION="0.1"
+
+
 
 
 ################################################################################
@@ -74,7 +87,76 @@ usage() {
 	echo "--alist       List audio capturing devices"
 	echo "--clist       List camera capturing devices"
 	echo "--help        Show this help screen"
+	echo "--version     Show version information"
 }
+
+version() {
+	printf "Version: %s (%s)\n" "${INFO_VERSION}" "${INFO_DATE}"
+	printf "Author:  %s (%s)\n" "${INFO_AUTHOR}" "${INFO_GPGKEY}"
+	printf "License: %s\n" "${INFO_LICENSE}"
+}
+
+################################################################################
+# Check requirements
+################################################################################
+
+check_operating_system() {
+	if [ "$(uname)" != "Linux"  ] && [ "$(uname)" != 'Darwin'  ]; then
+		echo "Unsupported operating system."
+		echo "It currently only works on Linux and OSX."
+		echo "Sorry ;-)"
+		return 1
+	fi
+}
+check_ffmpeg() {
+	# Check if ffmpeg exists
+	if ! command -v ffmpeg > /dev/null 2>&1; then
+		echo "ffmpeg not found."
+		return 1
+	fi
+}
+check_osx() {
+	if [ "$(uname)" = "Darwin" ]; then
+		if ! ffmpeg -f avfoundation -list_devices true -i "" 2>&1 | grep 'AVFoundation input device' > /dev/null 2>&1; then
+			echo 'OSX: AVFoundation not available in ffmpeg'
+			return 1
+		fi
+	fi
+}
+check_linux() {
+	if [ "$(uname)" = "Linux" ]; then
+		if ! ffmpeg 2>&1 | grep '--enable-x11grab' > /dev/null 2>&1; then
+			echo 'Linux: x11grab not available in ffmpeg'
+			return 1
+		fi
+
+		if ! command -v v4l2-ctl > /dev/null 2>&1; then
+			echo "Linux: v4l2-ctl not found."
+			echo
+			echo "Debian: apt-get install v4l-utils"
+			echo "CentOS: yum install v4l-utils"
+			return 1
+		fi
+
+		if ! command -v arecord > /dev/null 2>&1; then
+			echo "Linux: arecord not found."
+			echo
+			echo "Debian: apt-get install alsa-utils"
+			echo "CentOS: yum install alsa-utils"
+			return 1
+		fi
+
+		if ! command -v xdpyinfo > /dev/null 2>&1; then
+			echo "Linux: xdpyinfo not found."
+			echo
+			echo "Debian: apt-get install x11-utils"
+			echo "CentOS: yum install xorg-x11-utils"
+			return 1
+		fi
+	fi
+}
+
+
 
 
 
@@ -82,18 +164,27 @@ usage() {
 # Get OS dependent device names
 ################################################################################
 get_screen_device_names() {
-	# TODO: Linux
-	DEVICE_NAMES="$(ffmpeg -f avfoundation -list_devices true -i '' 2>&1 | grep 'AVFoundation input' | sed -n '/AVFoundation video/,/AVFoundation audio/p' | grep -oE '\[[0-9]\].*$' | grep 'Capture screen')"
+	if [ "$(uname)" = "Darwin" ]; then
+		DEVICE_NAMES="$(ffmpeg -f avfoundation -list_devices true -i '' 2>&1 | grep 'AVFoundation input' | sed -n '/AVFoundation video/,/AVFoundation audio/p' | grep -oE '\[[0-9]\].*$' | grep 'Capture screen')"
+	elif [ "$(uname)" = "Linux" ]; then
+		DEVICE_NAMES="$(xdpyinfo | grep -A 1 -E '^screen #[0-9]*:' | grep -vE '^\-\-' | sed 'N;s/\n/ /' | sed 's/dimensions://g' | sed 's/ \{1,\}/ /g' | awk '{printf "[%d] %s\n", NR, $0}')"
+	fi
 	echo "${DEVICE_NAMES}"
 }
 get_audio_device_names() {
-	# TODO: Linux
-	DEVICE_NAMES="$(ffmpeg -f avfoundation -list_devices true -i '' 2>&1 | grep 'AVFoundation input' | sed -n '/AVFoundation audio/,$p' | grep -oE '\[[0-9]\].*$')"
+	if [ "$(uname)" = "Darwin" ]; then
+		DEVICE_NAMES="$(ffmpeg -f avfoundation -list_devices true -i '' 2>&1 | grep 'AVFoundation input' | sed -n '/AVFoundation audio/,$p' | grep -oE '\[[0-9]\].*$')"
+	elif [ "$(uname)" = "Linux" ]; then
+		DEVICE_NAMES="$(arecord -l | grep -E '^card\s[0-9]*:' | awk '{printf "[%d] %s\n", NR, $0}')"
+	fi
 	echo "${DEVICE_NAMES}"
 }
 get_camera_device_names() {
-	# TODO: Linux
-	DEVICE_NAMES="$(ffmpeg -f avfoundation -list_devices true -i '' 2>&1 | grep 'AVFoundation input' | sed -n '/AVFoundation video/,/AVFoundation audio/p' | grep -oE '\[[0-9]\].*$' | grep 'Camera')"
+	if [ "$(uname)" = "Darwin" ]; then
+		DEVICE_NAMES="$(ffmpeg -f avfoundation -list_devices true -i '' 2>&1 | grep 'AVFoundation input' | sed -n '/AVFoundation video/,/AVFoundation audio/p' | grep -oE '\[[0-9]\].*$' | grep 'Camera')"
+	elif [ "$(uname)" = "Linux" ]; then
+		DEVICE_NAMES="$(v4l2-ctl --list-devices | grep -B 1 '/dev/video' | grep -vE '^\-\-' | sed 'N;s/\n/ /' | sed 's/ \{1,\}/ /g' | awk '{printf "[%d] %s\n", NR, $0}')"
+	fi
 	echo "${DEVICE_NAMES}"
 }
 
@@ -102,15 +193,15 @@ get_camera_device_names() {
 # Get device indices
 ################################################################################
 get_screen_device_indices() {
-	devices="$(get_screen_device_names | grep -o '\[[0-9]\]' | sed 's/\[//g' | sed 's/\]//g')"
+	devices="$(get_screen_device_names | grep -oE '^\[[0-9]\]' | sed 's/\[//g' | sed 's/\]//g')"
 	echo $devices
 }
 get_audio_device_indices() {
-	devices="$(get_audio_device_names | grep -o '\[[0-9]\]' | sed 's/\[//g' | sed 's/\]//g')"
+	devices="$(get_audio_device_names | grep -oE '^\[[0-9]\]' | sed 's/\[//g' | sed 's/\]//g')"
 	echo $devices
 }
 get_camera_device_indices() {
-	devices="$(get_camera_device_names | grep -o '\[[0-9]\]' | sed 's/\[//g' | sed 's/\]//g')"
+	devices="$(get_camera_device_names | grep -oE '^\[[0-9]\]' | sed 's/\[//g' | sed 's/\]//g')"
 	echo $devices
 }
 
@@ -202,15 +293,26 @@ choose_camera_device() {
 # MAIN ENTRY POINT
 ################################################################################
 
-# Check if ffmpeg exists
-if ! command -v ffmpeg > /dev/null 2>&1; then
-	echo "ffmpeg not found."
+
+# Check requirements
+if ! check_operating_system; then
+	exit 1
+fi
+if ! check_ffmpeg; then
+	exit 1
+fi
+if ! check_osx; then
+	exit 1
+fi
+if ! check_linux; then
 	exit 1
 fi
 
 
 
-# Enable screen recording
+
+
+# Enable screen recording by default
 screen=yes
 
 
@@ -276,6 +378,10 @@ while [ $# -gt 0  ]; do
 			;;
 		--help)
 			usage
+			exit 0
+			;;
+		--version)
+			version
 			exit 0
 			;;
 
