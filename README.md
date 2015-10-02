@@ -21,7 +21,10 @@
 
 
 ##### Tested on
-[![OSX](https://raw.githubusercontent.com/cytopia/icons/master/64x64/osx.png)](https://www.apple.com/osx) via [AVFoundation](https://ffmpeg.org/ffmpeg-devices.html#avfoundation)
+| OSX |
+| ----|
+| [![OSX](https://raw.githubusercontent.com/cytopia/icons/master/64x64/osx.png)](https://www.apple.com/osx) |
+| via [AVFoundation](https://ffmpeg.org/ffmpeg-devices.html#avfoundation) |
 
 
 
