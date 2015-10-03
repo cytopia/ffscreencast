@@ -1,4 +1,4 @@
-# ffscreencast (alpha)
+# ffscreencast (beta)
 
 [Features](https://github.com/cytopia/ffscreencast#1-features) |
 [Usage](https://github.com/cytopia/ffscreencast#2-usage) |
@@ -16,6 +16,8 @@
 ##### About
 `ffscreencast` is a shell wrapper for `ffmpeg` that allows fool-proof screen recording via the command line. It will auto-detect all available monitors, cameras and microphones and is able to interactively or manually choose the desired recording device(s). Additionally `ffscreencast` will let you overlay the camera stream on top of the desktop session.
 
+Besides that `ffscreencast` can act as an ffmpeg command generator. Every available option can also just show the corresponding ffmpeg command instead of executing it.
+
 
 ![Screencast](https://raw.githubusercontent.com/cytopia/ffscreencast/master/img/ffscreencast.png)
 
@@ -24,7 +26,7 @@
 | OSX    | Debian | CentOS |
 | :----: | :----: | :----: |
 | [![OSX](https://raw.githubusercontent.com/cytopia/icons/master/64x64/osx.png)](https://www.apple.com/osx) | [![Debian](https://raw.githubusercontent.com/cytopia/icons/master/64x64/debian.png)](https://www.debian.org) | [![CentOS](https://raw.githubusercontent.com/cytopia/icons/master/64x64/centos.png)](https://www.centos.org) |
-| via [AVFoundation](https://ffmpeg.org/ffmpeg-devices.html#avfoundation) | coming soon | coming soon |
+| via [AVFoundation](https://ffmpeg.org/ffmpeg-devices.html#avfoundation) | via [x11grab](https://ffmpeg.org/ffmpeg-devices.html#x11grab) | via [x11grab](https://ffmpeg.org/ffmpeg-devices.html#x11grab) |
 
 
 
@@ -46,7 +48,7 @@
 * Allows to manually (parameter) or interactively choose monitor
 * Allows to manually (parameter) or interactively choose camera
 * Allows to manually (parameter) or interactively choose sound device
-* List ffmpeg command instead of executing it
+* ffmpeg command generation
 
 ## 2. Usage
 
@@ -139,8 +141,17 @@ Showing screen recording with and without camera overlay.
 
 ## 4. Todo
 
+* Support for BSD
+* Support for Windows (via cygwin)?
 * Sound is still not working properly
-* Support for Linux and BSD
+* Improve ffmpeg recording (better options)
+* Reduce Linux dependencies
+* Get camera device capabilities
+* Set camera resolution via cmd
+* Set camera position via cmd
+* Get sound device capabilities
+* Set sound options via cmd (channels [linux: alsa vs pulse])
+* Be able to record one or multiple screens
 
 
 ## 5. Contribution
