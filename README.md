@@ -141,8 +141,17 @@ Showing screen recording with and without camera overlay.
 
 ## 4. Todo
 
+* Support for BSD
+* Support for Windows (via cygwin)?
 * Sound is still not working properly
-* Support for Linux and BSD
+* Improve ffmpeg recording (better options)
+* Reduce Linux dependencies
+* Get camera device capabilities
+* Set camera resolution via cmd
+* Set camera position via cmd
+* Get sound device capabilities
+* Set sound options via cmd (channels [linux: alsa vs pulse])
+* Be able to record one or multiple screens
 
 
 ## 5. Contribution
