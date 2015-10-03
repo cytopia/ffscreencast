@@ -559,7 +559,7 @@ if [ "$(uname)" = "Darwin" ]; then
 		FFMPEG="${FFMPEG} -hide_banner -loglevel info"
 		FFMPEG="${FFMPEG} -f avfoundation -framerate 30 -i \"${screen_device}\""
 		FFMPEG="${FFMPEG} -f avfoundation -framerate 30 -video_size 1280x720 -i \"${camera_device}\""
-		FFMPEG="${FFMPEG} -filter_complex \"overlay=main_w-overlay_w-10:main_h-overlay_h-10\""
+		FFMPEG="${FFMPEG} -filter_complex 'overlay=main_w-overlay_w-10:main_h-overlay_h-10'"
 		FFMPEG="${FFMPEG} \"${DIR}/${NAME}.${FF_CONTAINER}\""
 	else
 		FFMPEG="ffmpeg"
@@ -570,10 +570,12 @@ if [ "$(uname)" = "Darwin" ]; then
 
 elif [ "$(uname)" = "Linux" ]; then
 
+	# Get resolution of chosen monitor
 	resolution="$(get_screen_device_names | grep "\[${screen_device}\]" | grep -oE '[0-9]*x[0-9]*\spixels' | awk '{print $1}')"
 
+	# Get ffmpeg audio command (if audio was selected)
 	if [ ! -z ${audio+x} ]; then
-		audio_name="$(get_audio_device_names | grep "\[${audio_device}\]" )"
+		audio_name="$(get_audio_device_names | grep "\[${audio_device}\]")"
 		audio_card="$(echo "${audio_name}" | grep -oE 'card\s[0-9]*' | awk '{print $2}')"
 		audio_device="$(echo "${audio_name}" | grep -oE 'device\s[0-9]*' | awk '{print $2}')"
 		audio_string="-f alsa -ac 2 -i hw:${audio_card},${audio_device}"
@@ -582,10 +584,17 @@ elif [ "$(uname)" = "Linux" ]; then
 	fi
 
 	if [ ! -z ${camera+x} ]; then
-		# TODO:
-		FFMPEG="Unsupported"
+		camera_device="$(get_camera_device_names | grep "\[${camera_device}\]" | grep -oE '/dev/video[0-9]*')"
+
+		FFMPEG="ffmpeg"
+		FFMPEG="${FFMPEG} -hide_banner -loglevel info"
+		FFMPEG="${FFMPEG} -video_size ${resolution} -framerate 30"
+		FFMPEG="${FFMPEG} -f x11grab -i \":0.0\""
+		FFMPEG="${FFMPEG} -f v4l2 -video_size 1280x720 -framerate 30 -i ${camera_device}"
+		FFMPEG="${FFMPEG} ${audio_string}"
+		FFMPEG="${FFMPEG} -filter_complex 'overlay=main_w-overlay_w-10:main_h-overlay_h-10'"
+		FFMPEG="${FFMPEG} \"${DIR}/${NAME}.${FF_CONTAINER}\""
 	else
-		# TODO:
 		FFMPEG="ffmpeg"
 		FFMPEG="${FFMPEG} -hide_banner -loglevel info"
 		FFMPEG="${FFMPEG} -video_size ${resolution} -framerate 30"
