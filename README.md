@@ -1,4 +1,4 @@
-# ffscreencast
+# ffscreencast (alpha)
 
 [Features](https://github.com/cytopia/ffscreencast#1-features) |
 [Usage](https://github.com/cytopia/ffscreencast#2-usage) |
@@ -46,6 +46,7 @@
 * Allows to manually (parameter) or interactively choose monitor
 * Allows to manually (parameter) or interactively choose camera
 * Allows to manually (parameter) or interactively choose sound device
+* List ffmpeg command instead of executing it
 
 ## 2. Usage
 
@@ -123,6 +124,9 @@ $ ffscreencast -c0
 Show the ffmpeg command for camera recording
 ```shell
 $ ffscreencast -c --dry
+
+ffmpeg -hide_banner -loglevel info -f avfoundation -framerate 30 -i "1" -f avfoundation -framerate 30 -video_size 1280x720 -i "0" -filter_complex "overlay=main_w-overlay_w-10:main_h-overlay_h-10" "/Users/cytopia/Desktop/Screencast 2015-10-03 at 12.48.00.mkv"
+
 ```
 
 ## 3. Screenshots
