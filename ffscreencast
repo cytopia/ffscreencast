@@ -139,7 +139,7 @@ check_requirements() {
 
 	#### 4.) Check Linux
 	if [ "${uname}" = "Linux" ]; then
-		if ! ffmpeg 2>&1 | grep '--enable-x11grab' > /dev/null 2>&1; then
+		if ! ffmpeg 2>&1 | grep '\-\-enable-x11grab' > /dev/null 2>&1; then
 			echo "Linux: x11grab not available in ffmpeg"
 			return 1
 		elif [ "${1}" = "verbose" ]; then
