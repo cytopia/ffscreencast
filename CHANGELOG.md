@@ -1,4 +1,8 @@
-Version 0.2 (unreleased)
+Version 0.3 (unreleased)
+-----------
+
+
+Version 0.2 (beta)
 -----------
 
 - Added basic linux support
