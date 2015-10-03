@@ -16,6 +16,8 @@
 ##### About
 `ffscreencast` is a shell wrapper for `ffmpeg` that allows fool-proof screen recording via the command line. It will auto-detect all available monitors, cameras and microphones and is able to interactively or manually choose the desired recording device(s). Additionally `ffscreencast` will let you overlay the camera stream on top of the desktop session.
 
+Additionally `ffscreencast` can act as an ffmpeg command generator. Every available option can also just show the corresponding ffmpeg command instead of executing it.
+
 
 ![Screencast](https://raw.githubusercontent.com/cytopia/ffscreencast/master/img/ffscreencast.png)
 
@@ -46,7 +48,7 @@
 * Allows to manually (parameter) or interactively choose monitor
 * Allows to manually (parameter) or interactively choose camera
 * Allows to manually (parameter) or interactively choose sound device
-* List ffmpeg command instead of executing it
+* ffmpeg command generation
 
 ## 2. Usage
 
