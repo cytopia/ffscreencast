@@ -26,7 +26,7 @@ Additionally `ffscreencast` can act as an ffmpeg command generator. Every availa
 | OSX    | Debian | CentOS |
 | :----: | :----: | :----: |
 | [![OSX](https://raw.githubusercontent.com/cytopia/icons/master/64x64/osx.png)](https://www.apple.com/osx) | [![Debian](https://raw.githubusercontent.com/cytopia/icons/master/64x64/debian.png)](https://www.debian.org) | [![CentOS](https://raw.githubusercontent.com/cytopia/icons/master/64x64/centos.png)](https://www.centos.org) |
-| via [AVFoundation](https://ffmpeg.org/ffmpeg-devices.html#avfoundation) | coming soon | coming soon |
+| via [AVFoundation](https://ffmpeg.org/ffmpeg-devices.html#avfoundation) | via [x11grab](https://ffmpeg.org/ffmpeg-devices.html#x11grab) | via [x11grab](https://ffmpeg.org/ffmpeg-devices.html#x11grab) |
 
 
 
