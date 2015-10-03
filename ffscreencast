@@ -284,7 +284,7 @@ choose_screen_device() {
 	# Ask for device number
 	while true; do
 		read -p "$(tput setaf 2)Enter device number:$(tput sgr0) " dn < /dev/tty
-		[[ $indices =~ $dn ]] && break || echo 'Wrong device number'
+		[ ${#dn} -gt 0 ] && [[ $indices =~ $dn ]] && break || echo 'Wrong device number'
 	done
 	return $dn
 }
@@ -297,7 +297,7 @@ choose_audio_device() {
 	# Ask for device number
 	while true; do
 		read -p "$(tput setaf 2)Enter device number:$(tput sgr0) " dn < /dev/tty
-		[[ $indices =~ $dn ]] && break || echo 'Wrong device number'
+		[ ${#dn} -gt 0 ] && [[ $indices =~ $dn ]] && break || echo 'Wrong device number'
 	done
 	return $dn
 }
@@ -310,7 +310,7 @@ choose_camera_device() {
 	# Ask for device number
 	while true; do
 		read -p "$(tput setaf 2)Enter device number:$(tput sgr0) " dn < /dev/tty
-		[[ $indices =~ $dn ]] && break || echo 'Wrong device number'
+		[ ${#dn} -gt 0 ] && [[ $indices =~ $dn ]] && break || echo 'Wrong device number'
 	done
 	return $dn
 }
