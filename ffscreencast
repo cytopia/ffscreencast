@@ -546,27 +546,41 @@ fi
 ########################################
 
 
-# TODO: Add Linux support
+if [ "$(uname)" = "Darwin" ]; then
 
-if [ ! -z ${audio+x} ]; then
-	audio_device=":${audio_device}"
-else
-	audio_device=""
-fi
+	if [ ! -z ${audio+x} ]; then
+		audio_device=":${audio_device}"
+	else
+		audio_device=""
+	fi
 
+	if [ ! -z ${camera+x} ]; then
+		FFMPEG="ffmpeg"
+		FFMPEG="${FFMPEG} -hide_banner -loglevel info"
+		FFMPEG="${FFMPEG} -f avfoundation -framerate 30 -i \"${screen_device}\""
+		FFMPEG="${FFMPEG} -f avfoundation -framerate 30 -video_size 1280x720 -i \"${camera_device}\""
+		FFMPEG="${FFMPEG} -filter_complex \"overlay=main_w-overlay_w-10:main_h-overlay_h-10\""
+		FFMPEG="${FFMPEG} \"${DIR}/${NAME}.${FF_CONTAINER}\""
+	else
+		FFMPEG="ffmpeg"
+		FFMPEG="${FFMPEG} -hide_banner -loglevel info"
+		FFMPEG="${FFMPEG} -f avfoundation -i \"${screen_device}${audio_device}\""
+		FFMPEG="${FFMPEG} \"${DIR}/${NAME}.${FF_CONTAINER}\""
+	fi
 
-if [ ! -z ${camera+x} ]; then
-	FFMPEG="ffmpeg"
-	FFMPEG="${FFMPEG} -hide_banner -loglevel info"
-	FFMPEG="${FFMPEG} -f avfoundation -framerate 30 -i \"${screen_device}\""
-	FFMPEG="${FFMPEG} -f avfoundation -framerate 30 -video_size 1280x720 -i \"${camera_device}\""
-	FFMPEG="${FFMPEG} -filter_complex \"overlay=main_w-overlay_w-10:main_h-overlay_h-10\""
-	FFMPEG="${FFMPEG} \"${DIR}/${NAME}.${FF_CONTAINER}\""
-else
-	FFMPEG="ffmpeg"
-	FFMPEG="${FFMPEG} -hide_banner -loglevel info"
-	FFMPEG="${FFMPEG} -f avfoundation -i \"${screen_device}${audio_device}\""
-	FFMPEG="${FFMPEG} \"${DIR}/${NAME}.${FF_CONTAINER}\""
+elif [ "$(uname)" = "Linux" ]; then
+
+	if [ ! -z ${camera+x} ]; then
+		# TODO:
+		FFMPEG="Unsupported"
+	else
+		# TODO:
+		FFMPEG="ffmpeg"
+		FFMPEG="${FFMPEG} -hide_banner -loglevel info"
+		FFMPEG="${FFMPEG} -f x11grab -i \":0.0\""
+		FFMPEG="${FFMPEG} \"${DIR}/${NAME}.${FF_CONTAINER}\""
+	fi
+
 fi
 
 
