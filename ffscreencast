@@ -1,15 +1,25 @@
 #!/usr/bin/env bash
 #
-# @author    Patrick Plocke <patrick@plocke.de>
-# @gpg key   0x28BF179F
-# @date      2015-09-02
-# @licencse  MIT http://opensource.org/licenses/MIT
-# @version   0.1
+# @Author:  Patrick Plocke <patrick@plocke.de>
+# @GPG      0x28BF179F
+# @Licence: MIT
+#
+# @Description:
+# ffscreencast is a shell wrapper for ffmpeg that allows fool-proof screen
+# recording via the command line. It will auto-detect all available monitors,
+# cameras and microphones and is able to interactively or manually choose the
+# desired recording device(s). Additionally ffscreencast will let you overlay
+# the camera stream on top of the desktop session.
+#
+# Besides that ffscreencast can act as an ffmpeg command generator. Every
+# available option can also just show the corresponding ffmpeg command instead
+# of executing it.
+
 INFO_AUTHOR="Patrick Plocke <patrick@plocke.de>"
 INFO_GPGKEY="0x28BF179F"
-INFO_DATE="2015-09-02"
+INFO_DATE="2015-09-04"
 INFO_LICENSE="MIT"
-INFO_VERSION="0.1"
+INFO_VERSION="0.3-beta"
 
 
 
@@ -42,24 +52,6 @@ DIR="${HOME}/Desktop"
 #LOSSLESS=""
 #PRESET="ultrafast"
 #PIXFMT="uyvy422"
-
-
-# Specify the container format.
-# @param string FF_CONTAINER (mkv, avi)
-FF_CONTAINER="mkv"
-
-
-# Specify franes per second
-# @param integer FF_FRAME_RATE
-#FF_FRAME_RATE="30"
-
-
-
-
-################################################################################
-# VARIABLES (DO NOT EDIT)
-################################################################################
-
 #OPTIONS="-framerate ${FF_FRAME_RATE} "
 # ffmpeg -f avfoundation -i 1 -c:v libx264rgb -crf 0 -preset:v ultrafast -c:a pcm_s16le -af aresample=async=1:first_pts=0 out.mkv
 
@@ -68,20 +60,32 @@ FF_CONTAINER="mkv"
 ################################################################################
 
 usage() {
-	printf "%s %s %s\n" "Usage:" "${0}" "[-s[num]] [-a[num]] [-c[num]] [--dry]"
+	printf "%s %s %s\n" "Usage:" "${0}" "[-s[num]] [-a[num]] [-c[num]] [-f<num>] [-e<ext>] [--dry]"
 	printf "%s %s %s\n" "      " "${0}" "--slist [--dry]"
 	printf "%s %s %s\n" "      " "${0}" "--alist [--dry]"
 	printf "%s %s %s\n" "      " "${0}" "--clist [--dry]"
+	printf "%s %s %s\n" "      " "${0}" "--help"
+	printf "%s %s %s\n" "      " "${0}" "--version"
+	printf "%s %s %s\n" "      " "${0}" "--test"
 	echo
 	echo "When invoked without any arguments, it will start screen recording"
 	echo "on the default screen without sound and without camera overlay."
 	echo
-	echo "Recording options (can be combined):"
+	echo "Device options (can be combined):"
 	echo "-s[num]       (Default) Enable screen capturing [with device number X]"
+	echo "              E.g.: -s or -s1"
 	echo "-a[num]       Enable audio capturing [with device number X]"
+	echo "              E.g.: -a or -a1"
 	echo "-c[num]       Add camera overlay [with device number X]"
+	echo "              E.g.: -c or -c1"
 	echo
-	echo "Behavior options (combine with recording- or list options):"
+	echo "Recording options (can be combined):"
+	echo "-f<num>       Frames per second (Default: 30)"
+	echo "              E.g.: -f25"
+	echo "-e<ext>       Output video format extension (Default: mkv)"
+	echo "              E.g.: -emkv, or -eavi, or -emp4"
+	echo
+	echo "Behavior options (combine with device, recording- or list options):"
 	echo "--dry         Show the command (without executing)"
 	echo
 	echo "List options:"
@@ -334,6 +338,13 @@ isint() {
 # Enable screen recording by default
 screen=yes
 
+# Set default frames
+frames=30
+
+
+# Set default video container extension
+ext="mkv"
+
 
 ########################################
 # 2.) Evaluate cmd arguments
@@ -376,6 +387,18 @@ while [ $# -gt 0  ]; do
 					exit -1
 				fi
 			fi
+			;;
+
+		-f[0-9]*)
+			frames="$(echo "$1" | sed 's/^..//g')"
+			if ! isint ${frames} > /dev/null 2>&1; then
+				echo "Invalid frame number for -f"
+				exit -1
+			fi
+			;;
+
+		-e[a-z]*)
+			ext="$(echo "$1" | sed 's/^..//g')"
 			;;
 
 		--dry)
@@ -557,15 +580,15 @@ if [ "$(uname)" = "Darwin" ]; then
 	if [ ! -z ${camera+x} ]; then
 		FFMPEG="ffmpeg"
 		FFMPEG="${FFMPEG} -hide_banner -loglevel info"
-		FFMPEG="${FFMPEG} -f avfoundation -framerate 30 -i \"${screen_device}\""
-		FFMPEG="${FFMPEG} -f avfoundation -framerate 30 -video_size 1280x720 -i \"${camera_device}\""
+		FFMPEG="${FFMPEG} -f avfoundation -framerate ${frames} -i \"${screen_device}\""
+		FFMPEG="${FFMPEG} -f avfoundation -framerate ${frames} -video_size 1280x720 -i \"${camera_device}\""
 		FFMPEG="${FFMPEG} -filter_complex 'overlay=main_w-overlay_w-10:main_h-overlay_h-10'"
-		FFMPEG="${FFMPEG} \"${DIR}/${NAME}.${FF_CONTAINER}\""
+		FFMPEG="${FFMPEG} \"${DIR}/${NAME}.${ext}\""
 	else
 		FFMPEG="ffmpeg"
 		FFMPEG="${FFMPEG} -hide_banner -loglevel info"
-		FFMPEG="${FFMPEG} -f avfoundation -i \"${screen_device}${audio_device}\""
-		FFMPEG="${FFMPEG} \"${DIR}/${NAME}.${FF_CONTAINER}\""
+		FFMPEG="${FFMPEG} -f avfoundation -framerate ${frames} -i \"${screen_device}${audio_device}\""
+		FFMPEG="${FFMPEG} \"${DIR}/${NAME}.${ext}\""
 	fi
 
 elif [ "$(uname)" = "Linux" ]; then
@@ -588,19 +611,19 @@ elif [ "$(uname)" = "Linux" ]; then
 
 		FFMPEG="ffmpeg"
 		FFMPEG="${FFMPEG} -hide_banner -loglevel info"
-		FFMPEG="${FFMPEG} -video_size ${resolution} -framerate 30"
+		FFMPEG="${FFMPEG} -video_size ${resolution} -framerate ${frames}"
 		FFMPEG="${FFMPEG} -f x11grab -i \":0.0\""
-		FFMPEG="${FFMPEG} -f v4l2 -video_size 1280x720 -framerate 30 -i ${camera_device}"
+		FFMPEG="${FFMPEG} -f v4l2 -video_size 1280x720 -framerate ${frames} -i ${camera_device}"
 		FFMPEG="${FFMPEG} ${audio_string}"
 		FFMPEG="${FFMPEG} -filter_complex 'overlay=main_w-overlay_w-10:main_h-overlay_h-10'"
-		FFMPEG="${FFMPEG} \"${DIR}/${NAME}.${FF_CONTAINER}\""
+		FFMPEG="${FFMPEG} \"${DIR}/${NAME}.${ext}\""
 	else
 		FFMPEG="ffmpeg"
 		FFMPEG="${FFMPEG} -hide_banner -loglevel info"
-		FFMPEG="${FFMPEG} -video_size ${resolution} -framerate 30"
+		FFMPEG="${FFMPEG} -video_size ${resolution} -framerate ${frames}"
 		FFMPEG="${FFMPEG} -f x11grab -i \":0.0\""
 		FFMPEG="${FFMPEG} ${audio_string}"
-		FFMPEG="${FFMPEG} \"${DIR}/${NAME}.${FF_CONTAINER}\""
+		FFMPEG="${FFMPEG} \"${DIR}/${NAME}.${ext}\""
 	fi
 
 fi

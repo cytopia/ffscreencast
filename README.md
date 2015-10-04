@@ -59,20 +59,32 @@ To simply start desktop recording your screen call the program without any argum
 ```shell
 $ ffscreencast
 
-Usage: ffscreencast [-s[num]] [-a[num]] [-c[num]] [--dry]
+Usage: ffscreencast [-s[num]] [-a[num]] [-c[num]] [-f<num>] [-e<ext>] [--dry]
        ffscreencast --slist [--dry]
        ffscreencast --alist [--dry]
        ffscreencast --clist [--dry]
+       ffscreencast --help
+       ffscreencast --version
+       ffscreencast --test
 
 When invoked without any arguments, it will start screen recording
 on the default screen without sound and without camera overlay.
 
-Recording options (can be combined):
+Device options (can be combined):
 -s[num]       (Default) Enable screen capturing [with device number X]
+              E.g.: -s or -s1
 -a[num]       Enable audio capturing [with device number X]
+              E.g.: -a or -a1
 -c[num]       Add camera overlay [with device number X]
+              E.g.: -c or -c1
 
-Behavior options (combine with recording- or list options):
+Recording options (can be combined):
+-f<num>       Frames per second (Default: 30)
+              E.g.: -f25
+-e<ext>       Output video format extension (Default: mkv)
+              E.g.: -emkv, or -eavi, or -emp4
+
+Behavior options (combine with device, recording- or list options):
 --dry         Show the command (without executing)
 
 List options:
