@@ -59,7 +59,7 @@ To simply start desktop recording your screen call the program without any argum
 ```shell
 $ ffscreencast
 
-Usage: ffscreencast [-s[num]] [-a[num]] [-c[num]] [-f<num>] [-e<ext>] [--dry]
+Usage: ffscreencast [-s[num]] [-a[num]] [-c[num]] [-f<num>] [-e<ext>] [--args="..."] [--dry]
        ffscreencast --slist [--dry]
        ffscreencast --alist [--dry]
        ffscreencast --clist [--dry]
@@ -83,6 +83,10 @@ Recording options (can be combined):
               E.g.: -f25
 -e<ext>       Output video format extension (Default: mkv)
               E.g.: -emkv, or -eavi, or -emp4
+
+FFmpeg options (can be combined):
+-args="..."   Overwrite ffmpeg options.
+              Default: '-crf 0 -preset ultrafast'
 
 Behavior options (combine with device, recording- or list options):
 --dry         Show the command (without executing)

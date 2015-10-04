@@ -60,7 +60,7 @@ DIR="${HOME}/Desktop"
 ################################################################################
 
 usage() {
-	printf "%s %s %s\n" "Usage:" "${0}" "[-s[num]] [-a[num]] [-c[num]] [-f<num>] [-e<ext>] [--dry]"
+	printf "%s %s %s\n" "Usage:" "${0}" "[-s[num]] [-a[num]] [-c[num]] [-f<num>] [-e<ext>] [--args=\"...\"] [--dry]"
 	printf "%s %s %s\n" "      " "${0}" "--slist [--dry]"
 	printf "%s %s %s\n" "      " "${0}" "--alist [--dry]"
 	printf "%s %s %s\n" "      " "${0}" "--clist [--dry]"
@@ -84,6 +84,10 @@ usage() {
 	echo "              E.g.: -f25"
 	echo "-e<ext>       Output video format extension (Default: mkv)"
 	echo "              E.g.: -emkv, or -eavi, or -emp4"
+	echo
+	echo "FFmpeg options (can be combined):"
+	echo "-args=\"...\"   Overwrite ffmpeg options."
+	echo "              Default: '-crf 0 -preset ultrafast'"
 	echo
 	echo "Behavior options (combine with device, recording- or list options):"
 	echo "--dry         Show the command (without executing)"
@@ -346,6 +350,17 @@ frames=30
 ext="mkv"
 
 
+# Audio codec
+audio_codec="pcm_s16le"
+
+# Video codec
+video_codec="libx264"
+
+
+# Custom ffmpeg arguments
+args="-crf 0 -preset ultrafast"
+
+
 ########################################
 # 2.) Evaluate cmd arguments
 ########################################
@@ -399,6 +414,10 @@ while [ $# -gt 0  ]; do
 
 		-e[a-z]*)
 			ext="$(echo "$1" | sed 's/^..//g')"
+			;;
+
+		--args=*)
+			args="$(echo "$1" | sed 's/^--args=//g')"
 			;;
 
 		--dry)
@@ -572,22 +591,31 @@ fi
 if [ "$(uname)" = "Darwin" ]; then
 
 	if [ ! -z ${audio+x} ]; then
-		audio_device=":${audio_device}"
+		audio_device="${audio_device}"
+		audio_string="-c:a ${audio_codec}"
 	else
-		audio_device=""
+		audio_device="none"
+		audio_string=""
 	fi
 
 	if [ ! -z ${camera+x} ]; then
 		FFMPEG="ffmpeg"
 		FFMPEG="${FFMPEG} -hide_banner -loglevel info"
-		FFMPEG="${FFMPEG} -f avfoundation -framerate ${frames} -i \"${screen_device}\""
+		#FFMPEG="${FFMPEG} -framerate {$frames}"
+		FFMPEG="${FFMPEG} -f avfoundation -framerate ${frames} -i \"${screen_device}:${audio_device}\""
 		FFMPEG="${FFMPEG} -f avfoundation -framerate ${frames} -video_size 1280x720 -i \"${camera_device}\""
+		FFMPEG="${FFMPEG} ${audio_string}"
+		FFMPEG="${FFMPEG} ${args}"
+		FFMPEG="${FFMPEG} -c:v ${video_codec}"
 		FFMPEG="${FFMPEG} -filter_complex 'overlay=main_w-overlay_w-10:main_h-overlay_h-10'"
 		FFMPEG="${FFMPEG} \"${DIR}/${NAME}.${ext}\""
 	else
 		FFMPEG="ffmpeg"
 		FFMPEG="${FFMPEG} -hide_banner -loglevel info"
-		FFMPEG="${FFMPEG} -f avfoundation -framerate ${frames} -i \"${screen_device}${audio_device}\""
+		FFMPEG="${FFMPEG} -f avfoundation -framerate ${frames} -i \"${screen_device}:${audio_device}\""
+		FFMPEG="${FFMPEG} ${audio_string}"
+		FFMPEG="${FFMPEG} -c:v ${video_codec}"
+		FFMPEG="${FFMPEG} ${args}"
 		FFMPEG="${FFMPEG} \"${DIR}/${NAME}.${ext}\""
 	fi
 
@@ -601,7 +629,7 @@ elif [ "$(uname)" = "Linux" ]; then
 		audio_name="$(get_audio_device_names | grep "\[${audio_device}\]")"
 		audio_card="$(echo "${audio_name}" | grep -oE 'card\s[0-9]*' | awk '{print $2}')"
 		audio_device="$(echo "${audio_name}" | grep -oE 'device\s[0-9]*' | awk '{print $2}')"
-		audio_string="-f alsa -ac 2 -i hw:${audio_card},${audio_device}"
+		audio_string="-f alsa -ac 2 -i hw:${audio_card},${audio_device} -acodec ${audio_codec}"
 	else
 		audio_string=""
 	fi
@@ -615,6 +643,8 @@ elif [ "$(uname)" = "Linux" ]; then
 		FFMPEG="${FFMPEG} -f x11grab -i \":0.0\""
 		FFMPEG="${FFMPEG} -f v4l2 -video_size 1280x720 -framerate ${frames} -i ${camera_device}"
 		FFMPEG="${FFMPEG} ${audio_string}"
+		FFMPEG="${FFMPEG} -c:v ${video_codec}"
+		FFMPEG="${FFMPEG} ${args}"
 		FFMPEG="${FFMPEG} -filter_complex 'overlay=main_w-overlay_w-10:main_h-overlay_h-10'"
 		FFMPEG="${FFMPEG} \"${DIR}/${NAME}.${ext}\""
 	else
@@ -623,6 +653,8 @@ elif [ "$(uname)" = "Linux" ]; then
 		FFMPEG="${FFMPEG} -video_size ${resolution} -framerate ${frames}"
 		FFMPEG="${FFMPEG} -f x11grab -i \":0.0\""
 		FFMPEG="${FFMPEG} ${audio_string}"
+		FFMPEG="${FFMPEG} -c:v ${video_codec}"
+		FFMPEG="${FFMPEG} ${args}"
 		FFMPEG="${FFMPEG} \"${DIR}/${NAME}.${ext}\""
 	fi
 
@@ -631,7 +663,7 @@ fi
 
 #### RUN
 if [ "${l_dry}" = "yes" ]; then
-	echo "${FFMPEG}"
+	echo "$FFMPEG"
 else
 	eval $FFMPEG
 fi
