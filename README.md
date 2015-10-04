@@ -23,10 +23,10 @@ Besides that `ffscreencast` can act as an ffmpeg command generator. Every availa
 
 
 ##### Tested on
-| OSX    | Debian | CentOS |
-| :----: | :----: | :----: |
-| [![OSX](https://raw.githubusercontent.com/cytopia/icons/master/64x64/osx.png)](https://www.apple.com/osx) | [![Debian](https://raw.githubusercontent.com/cytopia/icons/master/64x64/debian.png)](https://www.debian.org) | [![CentOS](https://raw.githubusercontent.com/cytopia/icons/master/64x64/centos.png)](https://www.centos.org) |
-| via [AVFoundation](https://ffmpeg.org/ffmpeg-devices.html#avfoundation) | via [x11grab](https://ffmpeg.org/ffmpeg-devices.html#x11grab) | via [x11grab](https://ffmpeg.org/ffmpeg-devices.html#x11grab) |
+| OSX    | Linux | FreeBSD | Windows | 
+| :----: | :----: | :----: | :----: |
+| [![OSX](https://raw.githubusercontent.com/cytopia/icons/master/64x64/osx.png)](https://www.apple.com/osx) | ![Linux](https://raw.githubusercontent.com/cytopia/icons/master/64x64/linux.png) | [![FreeBSD](https://raw.githubusercontent.com/cytopia/icons/master/64x64/freebsd.png)](https://www.freebsd.org) | [![Windows](https://raw.githubusercontent.com/cytopia/icons/master/64x64/windows.png)](https://www.microsoft.com/en-us/windows) |
+| via [AVFoundation](https://ffmpeg.org/ffmpeg-devices.html#avfoundation) | via [x11grab](https://ffmpeg.org/ffmpeg-devices.html#x11grab) | coming soon | coming soon |
 
 
 
