@@ -13,7 +13,8 @@
 [![Type](https://img.shields.io/badge/type-bash-red.svg)](https://www.gnu.org/software/bash/)
 
 
-##### About
+#### About
+
 `ffscreencast` is a shell wrapper for `ffmpeg` that allows fool-proof screen recording via the command line. It will auto-detect all available monitors, cameras and microphones and is able to interactively or manually choose the desired recording device(s). Additionally `ffscreencast` will let you overlay the camera stream on top of the desktop session.
 
 Besides that `ffscreencast` can act as an ffmpeg command generator. Every available option can also just show the corresponding ffmpeg command instead of executing it.
@@ -22,7 +23,8 @@ Besides that `ffscreencast` can act as an ffmpeg command generator. Every availa
 ![Screencast](https://raw.githubusercontent.com/cytopia/ffscreencast/master/img/ffscreencast.png)
 
 
-##### Tested on
+#### Supported platforms
+
 | OSX    | Linux | FreeBSD | Windows | 
 | :----: | :----: | :----: | :----: |
 | [![OSX](https://raw.githubusercontent.com/cytopia/icons/master/64x64/osx.png)](https://www.apple.com/osx) | ![Linux](https://raw.githubusercontent.com/cytopia/icons/master/64x64/linux.png) | [![FreeBSD](https://raw.githubusercontent.com/cytopia/icons/master/64x64/freebsd.png)](https://www.freebsd.org) | [![Windows](https://raw.githubusercontent.com/cytopia/icons/master/64x64/windows.png)](https://www.microsoft.com/en-us/windows) |
@@ -30,7 +32,8 @@ Besides that `ffscreencast` can act as an ffmpeg command generator. Every availa
 
 
 
-##### Requirements
+#### Requirements
+
 | Program  | Required | Description |
 | ------------- | ------------- | -------- |
 | [bash](https://www.gnu.org/software/bash/)  | yes  | The whole script is written in bash and might not be 100% Posix compliant |
