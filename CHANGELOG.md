@@ -1,6 +1,7 @@
 Version 0.3 (unreleased)
 -----------
 
+- [Enh] OSX: Better screen (monitor) information
 - [Enh] Being able to change custom ffmpeg options via cmd argument
 - [Enh] Being able to change framerate via cmd argument
 - [Enh] Being able to change video format via cmd argument

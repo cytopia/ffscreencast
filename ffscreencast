@@ -201,7 +201,7 @@ check_requirements() {
 # @param string "dry": Show command only
 get_screen_device_names() {
 	if [ "$(uname)" = "Darwin" ]; then
-		DEVICE_NAMES="ffmpeg -f avfoundation -list_devices true -i '' 2>&1 | grep 'AVFoundation input' | sed -n '/AVFoundation video/,/AVFoundation audio/p' | grep -oE '\[[0-9]\].*$' | grep 'Capture screen'"
+		DEVICE_NAMES="paste <(echo \"\$(ffmpeg -f avfoundation -list_devices true -i '' 2>&1 | grep 'AVFoundation input' | sed -n '/AVFoundation video/,/AVFoundation audio/p' | grep -oE '\[[0-9]\].*$' | grep 'Capture screen')\") <(echo \"\$(system_profiler SPDisplaysDataType | sed -n '/^\s.*Displays:$/,\$p' | grep -vE '^\s.*Displays:$' | grep -E '^\s.*w*:$|Resolution:' | sed 'N;s/\n/ /' | sed 's/ \{1,\}/ /g' | sed 's/^[ \t ]*//;s/[ \t ]*$//')\")"
 	elif [ "$(uname)" = "Linux" ]; then
 		DEVICE_NAMES="xdpyinfo | grep -A 1 -E '^screen #[0-9]*:' | grep -vE '^\-\-' | sed 'N;s/\n/ /' | sed 's/dimensions://g' | sed 's/ \{1,\}/ /g' | awk '{printf \"[%d] %s\n\", NR, \$0}'"
 	fi
@@ -359,6 +359,7 @@ video_codec="libx264"
 
 # Custom ffmpeg arguments
 args="-crf 0 -preset ultrafast"
+#args="-qp 0 -preset ultrafast"
 
 
 ########################################
@@ -586,6 +587,9 @@ fi
 ########################################
 # 7. Build os-specific ffmpeg cmd
 ########################################
+
+# ffmpeg -f avfoundation -i ":0" -f avfoundation -i "1"  -f avfoundation -r 25 -i ":0" -c:a mp3 -c:v libx264 -crf 0 -preset ultrafast -threads 0  ~/Desktop/test.mkv
+
 
 
 if [ "$(uname)" = "Darwin" ]; then
