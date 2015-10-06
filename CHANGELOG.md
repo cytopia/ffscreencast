@@ -1,4 +1,8 @@
-Version 0.3 (unreleased)
+Version 0.4 (unreleased)
+-----------
+
+
+Version 0.3
 -----------
 
 - [Enh] Code cleanup

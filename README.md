@@ -25,7 +25,7 @@ Besides that `ffscreencast` can act as an ffmpeg command generator. Every availa
 
 #### Supported platforms
 
-| OSX    | Linux | FreeBSD | Windows | 
+| OSX    | Linux | FreeBSD | Windows |
 | :----: | :----: | :----: | :----: |
 | [![OSX](https://raw.githubusercontent.com/cytopia/icons/master/64x64/osx.png)](https://www.apple.com/osx) | ![Linux](https://raw.githubusercontent.com/cytopia/icons/master/64x64/linux.png) | [![FreeBSD](https://raw.githubusercontent.com/cytopia/icons/master/64x64/freebsd.png)](https://www.freebsd.org) | [![Windows](https://raw.githubusercontent.com/cytopia/icons/master/64x64/windows.png)](https://www.microsoft.com/en-us/windows) |
 | via [AVFoundation](https://ffmpeg.org/ffmpeg-devices.html#avfoundation) | via [x11grab](https://ffmpeg.org/ffmpeg-devices.html#x11grab) | coming soon | coming soon |
@@ -62,7 +62,7 @@ To simply start desktop recording your screen call the program without any argum
 ```shell
 $ ffscreencast
 
-Usage: ffscreencast [-s[num]] [-a[num]] [-c[num]] [-f<num>] [-e<ext>] [--args="..."] [--dry]
+Usage: ffscreencast [-s[num]] [--sargs=] [-a[num]] [--aargs=] [-c[num] [--cargs=] [--oargs=] [-e<ext>] [--dry]
        ffscreencast --slist [--dry]
        ffscreencast --alist [--dry]
        ffscreencast --clist [--dry]
@@ -73,39 +73,67 @@ Usage: ffscreencast [-s[num]] [-a[num]] [-c[num]] [-f<num>] [-e<ext>] [--args=".
 When invoked without any arguments, it will start screen recording
 on the default screen without sound and without camera overlay.
 
-Device options (can be combined):
--s[num]       (Default) Enable screen capturing [with device number X]
-              E.g.: -s or -s1
--a[num]       Enable audio capturing [with device number X]
-              E.g.: -a or -a1
--c[num]       Add camera overlay [with device number X]
-              E.g.: -c or -c1
+Input options:
+-s[num]           (Default) Enable screen capturing [with device number X].
+                  If no device number is specified it will use the default, if only
+                  one device is present, otherwise it will ask you to choose one
+                  Use: -s or -s1
 
-Recording options (can be combined):
--f<num>       Frames per second (Default: 30)
-              E.g.: -f25
--e<ext>       Output video format extension (Default: mkv)
-              E.g.: -emkv, or -eavi, or -emp4
+--sargs=          Additional screen arguments.
+                  Specify additional ffmpeg arguments for the screen input device.
+                  Use: --sargs="-framerate 30"
+                  Default: ''
 
-FFmpeg options (can be combined):
--args="..."   Overwrite ffmpeg options.
-              Default: '-crf 0 -preset ultrafast'
+-a[num]           Enable audio capturing [with device number X]
+                  If no device number is specified it will use the default, if only
+                  one device is present, otherwise it will ask you to choose one
+                  Use: -a or -a1
 
-Behavior options (combine with device, recording- or list options):
---dry         Show the command (without executing)
+--aargs=          Additional audio arguments.
+                  Specify additional ffmpeg arguments for the audio input device.
+                  Use: --aargs="-ac 1"
+                  Default: '-ac 2'
+
+-c[num]           Add camera overlay [with device number X]
+                  If no device number is specified it will use the default, if only
+                  one device is present, otherwise it will ask you to choose one
+                  Use: -c or -c1
+
+--cargs=          Additional camera arguments
+                  Specify additional ffmpeg arguments for the camera input device.
+                  Use: --cargs="-video_size 1280x720"
+                  Default: ''
+
+
+Output options:
+-e<ext>           Output video format extension (Default: mkv)
+                  E.g.: -emkv, or -eavi, or -emp4
+
+-oargs=           Additional output arguments
+                  Specify additional ffmpeg arguments for the output encoding.
+                  Use: --oargs="-crf 0"
+                  Default: '-crf 0 -preset ultrafast'
+
+
+Behavior options:
+--dry             Show the command (without executing)
+
 
 List options:
---slist       List screen capturing devices (monitors)
---alist       List audio capturing devices (microphones)
---clist       List camera capturing devices (cams)
+--list            List all devices
+--slist           Only list screen capturing devices (monitors)
+--alist           Only list audio capturing devices (microphones)
+--clist           Only list camera capturing devices (cams)
+
 
 System information:
---help        Show this help screen
---version     Show version information
---test        Test requirements
+--help            Show this help screen
+--version         Show version information
+--test            Test requirements
+
 ```
 
-The `num` (device numbers) can be omitted. If there is only one device of its type available, `ffscreencast` will automatically default to this device, otherwise it will ask interactively which device to use for recording. 
+The `num` (device numbers) can be omitted. If there is only one device of its type available, `ffscreencast` will automatically default to this device, otherwise it will ask interactively which device to use for recording.
 
 ### 2.2 Examples
 
@@ -146,7 +174,7 @@ Show the ffmpeg command for camera recording
 ```shell
 $ ffscreencast -c --dry
 
-ffmpeg -hide_banner -loglevel info -f avfoundation -framerate 30 -i "1" -f avfoundation -framerate 30 -video_size 1280x720 -i "0" -filter_complex "overlay=main_w-overlay_w-10:main_h-overlay_h-10" "/Users/cytopia/Desktop/Screencast 2015-10-03 at 12.48.00.mkv"
+ffmpeg -hide_banner -loglevel info -f avfoundation   -i "1" -f avfoundation  -i "0" -c:v libx264 -crf 0 -preset ultrafast -filter_complex 'overlay=main_w-overlay_w-10:main_h-overlay_h-10' "/Users/cytopia/Desktop/Screencast 2015-10-06 at 21.28.01.mkv"
 
 ```
 
@@ -168,7 +196,6 @@ Showing screen recording with and without camera overlay.
 * Get camera device capabilities
 * Set camera resolution via cmd
 * Set camera position via cmd
-* Get sound device capabilities
 * Set sound options via cmd (channels [linux: alsa vs pulse])
 * Be able to record one or multiple screens
 
