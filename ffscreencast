@@ -387,7 +387,9 @@ aargs="-ac 2"
 ext="mkv"
 
 # Audio codec
-audio_codec="pcm_s16le"
+audio_codec="libfaac"
+#audio_codec="pcm_s16le"
+
 
 # Video codec
 video_codec="libx264"
@@ -714,23 +716,33 @@ fi
 
 FFMPEG="ffmpeg"
 FFMPEG="${FFMPEG} -hide_banner -loglevel info"
+
+# Video Options
+FFMPEG="${FFMPEG} -thread_queue_size 512"
 FFMPEG="${FFMPEG} -f ${FF_INPUT_FRAMEWORK_SCREEN} ${screen_fix} ${sargs} -i \"${screen_device}\""
 
+# Camera Options (1/2)
 if [ ! -z ${camera+x} ] && [ "${camera}" = "yes" ]; then
+	FFMPEG="${FFMPEG} -thread_queue_size 512"
 	FFMPEG="${FFMPEG} -f ${FF_INPUT_FRAMEWORK_CAMERA} ${cargs} -i \"${camera_device}\""
 fi
 
+# Sound Options
 if [ ! -z ${audio+x} ] && [ "${audio}" = "yes" ]; then
+	FFMPEG="${FFMPEG} -thread_queue_size 512"
 	FFMPEG="${FFMPEG} -f ${FF_INPUT_FRAMEWORK_SOUND} ${aargs} -i \"${audio_device}\""
 	FFMPEG="${FFMPEG} -c:a ${audio_codec}"
 fi
 
 FFMPEG="${FFMPEG} -c:v ${video_codec}"
 FFMPEG="${FFMPEG} ${oargs}"
+
+# Camera Options (2/2)
 if [ ! -z ${camera+x} ] && [ "${camera}" = "yes" ]; then
 	FFMPEG="${FFMPEG} -filter_complex 'overlay=main_w-overlay_w-10:main_h-overlay_h-10'"
 fi
 
+FFMPEG="${FFMPEG} -threads 0"
 FFMPEG="${FFMPEG} \"${DIR}/${NAME}.${ext}\""
 
 

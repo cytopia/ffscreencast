@@ -1,6 +1,9 @@
 Version 0.4 (unreleased)
 -----------
 
+- [Fix] Audio delay (without camera overlay)
+- [Fix] Crispy sound
+
 
 Version 0.3
 -----------
