@@ -191,6 +191,7 @@ Showing screen recording with and without camera overlay.
 ### 4.1 Bugs
 
 * Sound is still behind one second if using camera overlay
+* Linux: Get default resolution/framerate for camera
 
 ### 4.2 Enhancements
 

@@ -1,4 +1,9 @@
-Version 0.4 (unreleased)
+Version 0.5 (unreleased)
+-----------
+
+
+
+Version 0.4 (beta)
 -----------
 
 - [Fix] OSX: Get default camera resolution/framerate for recording
