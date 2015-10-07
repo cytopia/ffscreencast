@@ -1,11 +1,14 @@
 Version 0.4 (unreleased)
 -----------
 
+- [Fix] OSX: Get default camera resolution/framerate for recording
+- [Enh] Code comments
+- [Enh] OSX: List camera resolutions and framerates
 - [Fix] Audio delay (without camera overlay)
-- [Fix] Crispy sound
+- [Fix] Fixed broken sound (now only delays about 1 second with cam overlay)
 
 
-Version 0.3
+Version 0.3 (beta)
 -----------
 
 - [Enh] Code cleanup

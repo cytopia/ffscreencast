@@ -17,7 +17,7 @@
 
 `ffscreencast` is a shell wrapper for `ffmpeg` that allows fool-proof screen recording via the command line. It will auto-detect all available monitors, cameras and microphones and is able to interactively or manually choose the desired recording device(s). Additionally `ffscreencast` will let you overlay the camera stream on top of the desktop session.
 
-Besides that `ffscreencast` can act as an ffmpeg command generator. Every available option can also just show the corresponding ffmpeg command instead of executing it.
+Besides that `ffscreencast` can act as an ffmpeg command generator. Every available option can also just show the corresponding ffmpeg command instead of executing it. Non-ffmpeg commands, such as how the camera resolution is pulled and others can also be shown instead of being executed.
 
 
 ![Screencast](https://raw.githubusercontent.com/cytopia/ffscreencast/master/img/ffscreencast.png)
@@ -147,7 +147,7 @@ List monitors and record on monitor 2
 $ ffscreencast --slist
 Available screen recording devices:
 
-[1] Capture screen 0
+[1] Capture screen 0    Color LCD: Resolution: 2880 x 1800 Retina
 [2] Capture screen 1
 
 $ ffscreencast -s2
@@ -158,7 +158,7 @@ List cameras
 $ ffscreencast --clist
 Available camera recording devices:
 
-[0] FaceTime HD Camera
+[0] FaceTime HD Camera FaceTime HD Camera (1280x720@30 640x480@30 320x240@30)
 ```
 
 Start a screencast with camera overlay (only one camera present)
@@ -188,16 +188,19 @@ Showing screen recording with and without camera overlay.
 
 ## 4. Todo
 
-* Support for BSD
-* Support for Windows (via cygwin)?
-* Sound is still not working properly
-* Improve ffmpeg recording (better options)
-* Reduce Linux dependencies
-* Get camera device capabilities
+### 4.1 Bugs
+
+* Sound is still behind one second if using camera overlay
+
+### 4.2 Enhancements
+
+* Support for [Free]BSD
+* Support for Windows (via cygwin and dshow)
+* Get camera device capabilities (done for OSX)
 * Set camera resolution via cmd
 * Set camera position via cmd
-* Set sound options via cmd (channels [linux: alsa vs pulse])
-* Be able to record one or multiple screens
+* Linux: set sound options via cmd (alsa vs pulse)
+* Be able to record one or multiple screens (monitors)
 
 
 ## 5. Contribution
