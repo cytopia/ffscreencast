@@ -194,7 +194,7 @@ Showing screen recording with and without camera overlay.
 
 ## 4. Todo
 
-* [ ] OSX USB Monitors: see #1
+* [ ] OSX USB Monitors (see [#1](https://github.com/cytopia/ffscreencast/issues/1))
 * [ ] Get camera resolutions for Linux
 
 
