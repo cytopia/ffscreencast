@@ -1,6 +1,7 @@
 Version 0.5 (unreleased)
 -----------
 
+- [Fix] Replaced commands (grep, awk, sed) with full system path to avoid aliases
 
 
 Version 0.4 (beta)

@@ -38,6 +38,15 @@ DIR="${HOME}/Desktop"
 
 
 ################################################################################
+# Binaries
+################################################################################
+GREP="$(which grep 2>/dev/null)"
+AWK="$(which awk 2>/dev/null)"
+SED="$(which sed 2>/dev/null)"
+
+
+
+################################################################################
 # FFmpeg Options
 ################################################################################
 
@@ -188,7 +197,7 @@ check_requirements() {
 
 	#### 3.) Check OSX
 	if [ "${uname}" = "Darwin" ]; then
-		if ! ffmpeg -f avfoundation -list_devices true -i "" 2>&1 | grep 'AVFoundation input device' > /dev/null 2>&1; then
+		if ! ffmpeg -f avfoundation -list_devices true -i "" 2>&1 | $GREP 'AVFoundation input device' > /dev/null 2>&1; then
 			echo "OSX: AVFoundation not available in ffmpeg"
 			return 1
 		elif [ "${1}" = "verbose" ]; then
@@ -198,7 +207,7 @@ check_requirements() {
 
 	#### 4.) Check Linux
 	if [ "${uname}" = "Linux" ]; then
-		if ! ffmpeg 2>&1 | grep '\-\-enable-x11grab' > /dev/null 2>&1; then
+		if ! ffmpeg 2>&1 | $GREP '\-\-enable-x11grab' > /dev/null 2>&1; then
 			echo "Linux: x11grab not available in ffmpeg"
 			return 1
 		elif [ "${1}" = "verbose" ]; then
@@ -254,9 +263,9 @@ check_requirements() {
 # @param	string		"dry": Show command only
 get_screen_device_names() {
 	if [ "$(uname)" = "Darwin" ]; then
-		DEVICE_NAMES="paste <(echo \"\$(ffmpeg -f avfoundation -list_devices true -i '' 2>&1 | grep 'AVFoundation input' | sed -n '/AVFoundation video/,/AVFoundation audio/p' | grep -oE '\[[0-9]\].*$' | grep 'Capture screen')\") <(echo \"\$(system_profiler SPDisplaysDataType | sed -n '/^\s.*Displays:$/,\$p' | grep -vE '^\s.*Displays:$' | grep -E '^\s.*w*:$|Resolution:' | sed 'N;s/\n/ /' | sed 's/ \{1,\}/ /g' | sed 's/^[ \t ]*//;s/[ \t ]*$//')\")"
+		DEVICE_NAMES="paste <(echo \"\$(ffmpeg -f avfoundation -list_devices true -i '' 2>&1 | $GREP 'AVFoundation input' | $SED -n '/AVFoundation video/,/AVFoundation audio/p' | $GREP -oE '\[[0-9]\].*$' | $GREP 'Capture screen')\") <(echo \"\$(system_profiler SPDisplaysDataType | $SED -n '/^\s.*Displays:$/,\$p' | $GREP -vE '^\s.*Displays:$' | $GREP -E '^\s.*w*:$|Resolution:' | $SED 'N;s/\n/ /' | $SED 's/ \{1,\}/ /g' | $SED 's/^[ \t ]*//;s/[ \t ]*$//')\")"
 	elif [ "$(uname)" = "Linux" ]; then
-		DEVICE_NAMES="xdpyinfo | grep -A 1 -E '^screen #[0-9]*:' | grep -vE '^\-\-' | sed 'N;s/\n/ /' | sed 's/dimensions://g' | sed 's/ \{1,\}/ /g' | awk '{printf \"[%d] %s\n\", NR, \$0}'"
+		DEVICE_NAMES="xdpyinfo | $GREP -A 1 -E '^screen #[0-9]*:' | $GREP -vE '^\-\-' | $SED 'N;s/\n/ /' | $SED 's/dimensions://g' | $SED 's/ \{1,\}/ /g' | $AWK '{printf \"[%d] %s\n\", NR, \$0}'"
 	fi
 	[ "${1}" = "yes" ] && echo "${DEVICE_NAMES}" || eval $DEVICE_NAMES
 }
@@ -267,9 +276,9 @@ get_screen_device_names() {
 # @param	string		"dry": Show command only
 get_audio_device_names() {
 	if [ "$(uname)" = "Darwin" ]; then
-		DEVICE_NAMES="ffmpeg -f avfoundation -list_devices true -i '' 2>&1 | grep 'AVFoundation input' | sed -n '/AVFoundation audio/,\$p' | grep -oE '\[[0-9]\].*$'"
+		DEVICE_NAMES="ffmpeg -f avfoundation -list_devices true -i '' 2>&1 | $GREP 'AVFoundation input' | $SED -n '/AVFoundation audio/,\$p' | $GREP -oE '\[[0-9]\].*$'"
 	elif [ "$(uname)" = "Linux" ]; then
-		DEVICE_NAMES="arecord -l | grep -E '^card\s[0-9]*:' | awk '{printf \"[%d] %s\n\", NR, \$0}'"
+		DEVICE_NAMES="arecord -l | $GREP -E '^card\s[0-9]*:' | $AWK '{printf \"[%d] %s\n\", NR, \$0}'"
 	fi
 	[ "${1}" = "yes" ] && echo "${DEVICE_NAMES}" || eval $DEVICE_NAMES
 }
@@ -280,9 +289,9 @@ get_audio_device_names() {
 # @param	string		"dry": Show command only
 get_camera_device_names() {
 	if [ "$(uname)" = "Darwin" ]; then
-		DEVICE_NAMES="ffmpeg -f avfoundation -list_devices true -i '' 2>&1 | grep 'AVFoundation input' | sed -n '/AVFoundation video/,/AVFoundation audio/p' | grep -oE '\[[0-9]\].*$' | grep 'Camera' | while read line; do tmp=\"\$(echo \$line | grep -oE '^\[[0-9]*\]' | sed 's/\[//' | sed 's/\]//')\"; reso=\"\$(ffmpeg -t 1 -f avfoundation -r 0.1 -i \$tmp -f mkv - 2>&1 | grep '\[avfoundation' | sed -n '/Supported modes:/,\$p' | grep -oE '[0-9]*x[0-9]*\@\[.*fps' | sed 's/\[[0-9]*\.[0-9]*//' | sed 's/\s//' | sed 's/]fps//' | awk '{ if(\$0 ~ /\./) sub(\"\\\.*0+\$\",\"\");print}' | tr '\n' ' ' | xargs)\"; echo \"\$line (\$reso)\"; done"
+		DEVICE_NAMES="ffmpeg -f avfoundation -list_devices true -i '' 2>&1 | $GREP 'AVFoundation input' | $SED -n '/AVFoundation video/,/AVFoundation audio/p' | $GREP -oE '\[[0-9]\].*$' | $GREP 'Camera' | while read line; do tmp=\"\$(echo \$line | $GREP -oE '^\[[0-9]*\]' | $SED 's/\[//' | $SED 's/\]//')\"; reso=\"\$(ffmpeg -t 1 -f avfoundation -r 0.1 -i \$tmp -f mkv - 2>&1 | $GREP '\[avfoundation' | $SED -n '/Supported modes:/,\$p' | $GREP -oE '[0-9]*x[0-9]*\@\[.*fps' | $SED 's/\[[0-9]*\.[0-9]*//' | $SED 's/\s//' | $SED 's/]fps//' | $AWK '{ if(\$0 ~ /\./) sub(\"\\\.*0+\$\",\"\");print}' | tr '\n' ' ' | xargs)\"; echo \"\$line (\$reso)\"; done"
 	elif [ "$(uname)" = "Linux" ]; then
-		DEVICE_NAMES="v4l2-ctl --list-devices | grep -B 1 '/dev/video' | grep -vE '^\-\-' | sed 'N;s/\n/ /' | sed 's/ \{1,\}/ /g' | awk '{printf \"[%d] %s\n\", NR, \$0}'"
+		DEVICE_NAMES="v4l2-ctl --list-devices | $GREP -B 1 '/dev/video' | $GREP -vE '^\-\-' | $SED 'N;s/\n/ /' | $SED 's/ \{1,\}/ /g' | $AWK '{printf \"[%d] %s\n\", NR, \$0}'"
 	fi
 	[ "${1}" = "yes" ] && echo "${DEVICE_NAMES}" || eval $DEVICE_NAMES
 }
@@ -294,15 +303,15 @@ get_camera_device_names() {
 ################################################################################
 
 get_screen_device_indices() {
-	indices="$(get_screen_device_names | grep -oE '^\[[0-9]\]' | sed 's/\[//g' | sed 's/\]//g')"
+	indices="$(get_screen_device_names | $GREP -oE '^\[[0-9]\]' | $SED 's/\[//g' | $SED 's/\]//g')"
 	echo $indices
 }
 get_audio_device_indices() {
-	indices="$(get_audio_device_names | grep -oE '^\[[0-9]\]' | sed 's/\[//g' | sed 's/\]//g')"
+	indices="$(get_audio_device_names | $GREP -oE '^\[[0-9]\]' | $SED 's/\[//g' | $SED 's/\]//g')"
 	echo $indices
 }
 get_camera_device_indices() {
-	indices="$(get_camera_device_names | grep -oE '^\[[0-9]\]' | sed 's/\[//g' | sed 's/\]//g')"
+	indices="$(get_camera_device_names | $GREP -oE '^\[[0-9]\]' | $SED 's/\[//g' | $SED 's/\]//g')"
 	echo $indices
 }
 
@@ -313,15 +322,15 @@ get_camera_device_indices() {
 ################################################################################
 
 count_screen_devices() {
-	total="$(get_screen_device_names | grep -c '')"
+	total="$(get_screen_device_names | $GREP -c '')"
 	echo $total
 }
 count_audio_devices() {
-	total="$(get_audio_device_names | grep -c '')"
+	total="$(get_audio_device_names | $GREP -c '')"
 	echo $total
 }
 count_camera_devices() {
-	total="$(get_camera_device_names | grep -c '')"
+	total="$(get_camera_device_names | $GREP -c '')"
 	echo $total
 }
 
@@ -444,13 +453,29 @@ get_screen_resolution() {
 	screen_device_index=$1
 
 	if [ "$(uname)" = "Darwin" ]; then
-		resolution="$(get_screen_device_names | grep "\[${screen_device_index}\]" | grep -oE '[0-9]*\sx\s[0-9]*' | sed 's/\s//g')"
+		resolution="$(get_screen_device_names | $GREP "\[${screen_device_index}\]" | $GREP -oE '[0-9]*\sx\s[0-9]*' | $SED 's/\s//g')"
 	elif [ "$(uname)" = "Linux" ]; then
-		resolution="$(get_screen_device_names | grep "\[${screen_device_index}\]" | grep -oE '[0-9]*x[0-9]*\spixels' | awk '{print $1}')"
+		resolution="$(get_screen_device_names | $GREP "\[${screen_device_index}\]" | $GREP -oE '[0-9]*x[0-9]*\spixels' | $AWK '{print $1}')"
 	fi
 
 	# Format: [0-9].*x[0-9].* (e.g.: 640x480)
 	echo "${resolution}"
+}
+
+
+
+#
+# Get all resolutions/framerates of a given camera
+# Output:   WIDTHxHEIGHT@FRAMES
+# Example: "1280x720@30 1280x720@25 640x480@30 640x480@10""
+#
+get_camera_resolutions() {
+
+	# Linux (v4l): Get all camera resolutions
+
+	echo
+	# cat v4l.txt | grep -oE '[0-9]+x[0-9]+|[0-9\.]+\sfps' | $SED 's/\sfps//g' | $AWK '{ if($0 ~ /\./) sub("\\.*0+$","");print }' | $AWK '/[0-9]+x[0-9]+/{if (x)print x;x="";}{x=(!x)?$0:x","$0;}END{print x;}' | $SED 's/,/ @ /' | sort -nr | sort -u
+
 }
 
 #
@@ -461,7 +486,7 @@ get_default_camera_resolution() {
 	camera_device_index=$1
 
 	if [ "$(uname)" = "Darwin" ]; then
-		resolution="$(get_camera_device_names | grep "\[${camera_device_index}\]" | grep -oE '[0-9]+x[0-9]+' | head -n1)"
+		resolution="$(get_camera_device_names | $GREP "\[${camera_device_index}\]" | $GREP -oE '[0-9]+x[0-9]+' | head -n1)"
 	# TODO: Add Linux support
 	elif [ "$(uname)" = "Linux" ]; then
 		reolution=""
@@ -479,7 +504,7 @@ get_camera_framerate() {
 	camera_resolution="${2}"
 
 	if [ "$(uname)" = "Darwin" ]; then
-		framerate="$(get_camera_device_names | grep "\[${camera_device_index}\]" | grep -oE "${camera_resolution}@[0-9]+(\.)*[0-9]*" | sed "s/${camera_resolution}@//")"
+		framerate="$(get_camera_device_names | $GREP "\[${camera_device_index}\]" | $GREP -oE "${camera_resolution}@[0-9]+(\.)*[0-9]*" | $SED "s/${camera_resolution}@//")"
 	# TODO: Add Linux support
 	elif [ "$(uname)" = "Linux" ]; then
 		framerate=""
@@ -541,7 +566,7 @@ while [ $# -gt 0  ]; do
 		# Screen input device
 		-s | -s[0-9]*)
 			screen=yes
-			screen_num="$(echo "$1" | sed 's/^..//g')"
+			screen_num="$(echo "$1" | $SED 's/^..//g')"
 			if [ ${#screen_num} -gt 0 ]; then
 				if ! isint ${screen_num} > /dev/null 2>&1; then
 					echo "Invalid screen number for -s"
@@ -551,7 +576,7 @@ while [ $# -gt 0  ]; do
 			;;
 		# Screen args
 		--sargs=*)
-			sargs="$(echo "$1" | sed 's/^--sargs=//g')"
+			sargs="$(echo "$1" | $SED 's/^--sargs=//g')"
 			;;
 
 
@@ -560,7 +585,7 @@ while [ $# -gt 0  ]; do
 		# Audio recording
 		-a | -a[0-9]*)
 			audio=yes
-			audio_num="$(echo "$1" | sed 's/^..//g')"
+			audio_num="$(echo "$1" | $SED 's/^..//g')"
 			if [ ${#audio_num} -gt 0 ]; then
 				if ! isint ${audio_num} > /dev/null 2>&1; then
 					echo "Invalid audio number for -a"
@@ -570,7 +595,7 @@ while [ $# -gt 0  ]; do
 			;;
 		# Audio args
 		--aargs=*)
-			sargs="$(echo "$1" | sed 's/^--aargs=//g')"
+			sargs="$(echo "$1" | $SED 's/^--aargs=//g')"
 			;;
 
 
@@ -579,7 +604,7 @@ while [ $# -gt 0  ]; do
 		# Camera input device
 		-c | -c[0-9]*)
 			camera=yes
-			camera_num="$(echo "$1" | sed 's/^..//g')"
+			camera_num="$(echo "$1" | $SED 's/^..//g')"
 			if [ ${#camera_num} -gt 0 ]; then
 				if ! isint ${camera_num} > /dev/null 2>&1; then
 					echo "Invalid camera number for -c"
@@ -589,18 +614,18 @@ while [ $# -gt 0  ]; do
 			;;
 		# Camera args
 		--cargs=*)
-			cargs="$(echo "$1" | sed 's/^--cargs=//g')"
+			cargs="$(echo "$1" | $SED 's/^--cargs=//g')"
 			;;
 
 
 
 		#### ---- Output options ----
 		-e[a-z]*)
-			ext="$(echo "$1" | sed 's/^..//g')"
+			ext="$(echo "$1" | $SED 's/^..//g')"
 			;;
 
 		--oargs=*)
-			oargs="$(echo "$1" | sed 's/^--oargs=//g')"
+			oargs="$(echo "$1" | $SED 's/^--oargs=//g')"
 			;;
 
 
@@ -832,15 +857,15 @@ elif [ "$(uname)" = "Linux" ]; then
 
 	# Get ffmpeg audio command (if audio was selected)
 	if [ ! -z ${audio+x} ] && [ "${audio}" = "yes" ]; then
-		audio_name="$(get_audio_device_names | grep "\[${audio_device}\]")"
-		audio_card="$(echo "${audio_name}" | grep -oE 'card\s[0-9]*' | awk '{print $2}')"
-		audio_device="$(echo "${audio_name}" | grep -oE 'device\s[0-9]*' | awk '{print $2}')"
+		audio_name="$(get_audio_device_names | $GREP "\[${audio_device}\]")"
+		audio_card="$(echo "${audio_name}" | $GREP -oE 'card\s[0-9]*' | $AWK '{print $2}')"
+		audio_device="$(echo "${audio_name}" | $GREP -oE 'device\s[0-9]*' | $AWK '{print $2}')"
 		audio_device="hw:${audio_card},${audio_device}"
 	fi
 
 	# Get camera device
 	if [ ! -z ${camera+x} ] && [ "${camera}" = "yes" ]; then
-		camera_device="$(get_camera_device_names | grep "\[${camera_device}\]" | grep -oE '/dev/video[0-9]*')"
+		camera_device="$(get_camera_device_names | $GREP "\[${camera_device}\]" | $GREP -oE '/dev/video[0-9]*')"
 		camera_fix=""
 	fi
 
