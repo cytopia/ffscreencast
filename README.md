@@ -6,7 +6,8 @@
 [Todo](https://github.com/cytopia/ffscreencast#4-todo) |
 [Contribution](https://github.com/cytopia/ffscreencast#5-contribution) |
 [License](https://github.com/cytopia/ffscreencast#6-license) |
-[Version](https://github.com/cytopia/ffscreencast#7-version)
+[Version](https://github.com/cytopia/ffscreencast#7-version) |
+[Awesome](https://github.com/cytopia/ffscreencast#8-awesome)
 
 [![Build Status](https://travis-ci.org/cytopia/ffscreencast.svg?branch=master)](https://travis-ci.org/cytopia/ffscreencast)
 [![Latest Stable Version](https://poser.pugx.org/cytopia/ffscreencast/v/stable)](https://packagist.org/packages/cytopia/ffscreencast) [![Total Downloads](https://poser.pugx.org/cytopia/ffscreencast/downloads)](https://packagist.org/packages/cytopia/ffscreencast) [![Latest Unstable Version](https://poser.pugx.org/cytopia/ffscreencast/v/unstable)](https://packagist.org/packages/cytopia/ffscreencast) [![License](https://poser.pugx.org/cytopia/ffscreencast/license)](http://opensource.org/licenses/MIT)
@@ -223,3 +224,10 @@ Contributors are welcome.
 
 ## 7. Version
 For a complete list of verion see [CHANGELOG](CHANGELOG.md)
+
+## 8. Awesome
+
+Added by the following [![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/sindresorhus/awesome) lists:
+
+* [awesome-cli](https://github.com/aharris88/awesome-cli)
+
