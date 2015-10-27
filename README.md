@@ -142,7 +142,7 @@ Do a screencast on the default screen (without explicitly choosing the monitor)
 $ ffscreencast
 ```
 
-List monitors and record on monitor 2
+List monitors and record on monitor 2 (`Capture screen 0`)
 ```shell
 $ ffscreencast --slist
 Available screen recording devices (monitors):
@@ -192,6 +192,10 @@ Showing screen recording with and without camera overlay.
 
 
 ## 4. Todo
+
+* [ ] OSX USB Monitors: see #1
+* [ ] Get camera resolutions for Linux
+
 
 ### 4.1 Bugs
 
