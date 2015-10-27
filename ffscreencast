@@ -489,7 +489,7 @@ get_default_camera_resolution() {
 		resolution="$(get_camera_device_names | $GREP "\[${camera_device_index}\]" | $GREP -oE '[0-9]+x[0-9]+' | head -n1)"
 	# TODO: Add Linux support
 	elif [ "$(uname)" = "Linux" ]; then
-		reolution=""
+		resolution=""
 	fi
 	echo "${resolution}"
 }
@@ -880,7 +880,13 @@ FFMPEG="${FFMPEG} -hide_banner -loglevel info"
 
 # Video Options
 FFMPEG="${FFMPEG} -thread_queue_size 512"
-FFMPEG="${FFMPEG} -f ${FF_INPUT_FRAMEWORK_SCREEN} -video_size ${screen_resolution} ${sargs} -i \"${screen_device}\""
+
+# If we are able to get the screen resolution, use it
+if [ "$screen_resolution" != "" ]; then
+	FFMPEG="${FFMPEG} -f ${FF_INPUT_FRAMEWORK_SCREEN} -video_size ${screen_resolution} ${sargs} -i \"${screen_device}\""
+else
+	FFMPEG="${FFMPEG} -f ${FF_INPUT_FRAMEWORK_SCREEN} ${sargs} -i \"${screen_device}\""
+fi
 
 # Camera Options (1/2)
 if [ ! -z ${camera+x} ] && [ "${camera}" = "yes" ]; then

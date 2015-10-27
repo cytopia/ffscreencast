@@ -1,6 +1,7 @@
 Version 0.5 (unreleased)
 -----------
 
+- [FIX] Remove `-video_size` option if no resolution was found
 - [Fix] Replaced commands (grep, awk, sed) with full system path to avoid aliases
 
 
