@@ -19,8 +19,7 @@ INFO_AUTHOR="Patrick Plocke <patrick@plocke.de>"
 INFO_GPGKEY="0x28BF179F"
 INFO_DATE="2015-09-04"
 INFO_LICENSE="MIT"
-INFO_VERSION="0.3-beta"
-
+INFO_VERSION="0.5-beta"
 
 
 
@@ -267,7 +266,7 @@ get_screen_device_names() {
 	elif [ "$(uname)" = "Linux" ]; then
 		DEVICE_NAMES="xdpyinfo | $GREP -A 1 -E '^screen #[0-9]*:' | $GREP -vE '^\-\-' | $SED 'N;s/\n/ /' | $SED 's/dimensions://g' | $SED 's/ \{1,\}/ /g' | $AWK '{printf \"[%d] %s\n\", NR, \$0}'"
 	fi
-	[ "${1}" = "yes" ] && echo "${DEVICE_NAMES}" || eval $DEVICE_NAMES
+	if [ "${1}" = "yes" ]; then echo "${DEVICE_NAMES}"; else eval "${DEVICE_NAMES}"; fi
 }
 
 #
@@ -280,7 +279,7 @@ get_audio_device_names() {
 	elif [ "$(uname)" = "Linux" ]; then
 		DEVICE_NAMES="arecord -l | $GREP -E '^card\s[0-9]*:' | $AWK '{printf \"[%d] %s\n\", NR, \$0}'"
 	fi
-	[ "${1}" = "yes" ] && echo "${DEVICE_NAMES}" || eval $DEVICE_NAMES
+	if [ "${1}" = "yes" ]; then echo "${DEVICE_NAMES}"; else eval "${DEVICE_NAMES}"; fi
 }
 
 #
@@ -293,7 +292,7 @@ get_camera_device_names() {
 	elif [ "$(uname)" = "Linux" ]; then
 		DEVICE_NAMES="v4l2-ctl --list-devices | $GREP -B 1 '/dev/video' | $GREP -vE '^\-\-' | $SED 'N;s/\n/ /' | $SED 's/ \{1,\}/ /g' | $AWK '{printf \"[%d] %s\n\", NR, \$0}'"
 	fi
-	[ "${1}" = "yes" ] && echo "${DEVICE_NAMES}" || eval $DEVICE_NAMES
+	if [ "${1}" = "yes" ]; then echo "${DEVICE_NAMES}"; else eval "${DEVICE_NAMES}"; fi
 }
 
 
@@ -304,15 +303,15 @@ get_camera_device_names() {
 
 get_screen_device_indices() {
 	indices="$(get_screen_device_names | $GREP -oE '^\[[0-9]\]' | $SED 's/\[//g' | $SED 's/\]//g')"
-	echo $indices
+	echo "$indices"
 }
 get_audio_device_indices() {
 	indices="$(get_audio_device_names | $GREP -oE '^\[[0-9]\]' | $SED 's/\[//g' | $SED 's/\]//g')"
-	echo $indices
+	echo "$indices"
 }
 get_camera_device_indices() {
 	indices="$(get_camera_device_names | $GREP -oE '^\[[0-9]\]' | $SED 's/\[//g' | $SED 's/\]//g')"
-	echo $indices
+	echo "$indices"
 }
 
 
@@ -323,15 +322,15 @@ get_camera_device_indices() {
 
 count_screen_devices() {
 	total="$(get_screen_device_names | $GREP -c '')"
-	echo $total
+	echo "$total"
 }
 count_audio_devices() {
 	total="$(get_audio_device_names | $GREP -c '')"
-	echo $total
+	echo "$total"
 }
 count_camera_devices() {
 	total="$(get_camera_device_names | $GREP -c '')"
-	echo $total
+	echo "$total"
 }
 
 
@@ -393,10 +392,10 @@ choose_screen_device() {
 
 	# Ask for device number
 	while true; do
-		read -p "$(tput setaf 2)Enter device number:$(tput sgr0) " dn < /dev/tty
+		read -r -p "$(tput setaf 2)Enter device number:$(tput sgr0) " dn < /dev/tty
 		[ ${#dn} -gt 0 ] && [[ $indices =~ $dn ]] && break || echo 'Wrong device number'
 	done
-	return $dn
+	return "$dn"
 }
 
 #
@@ -413,10 +412,10 @@ choose_audio_device() {
 
 	# Ask for device number
 	while true; do
-		read -p "$(tput setaf 2)Enter device number:$(tput sgr0) " dn < /dev/tty
+		read -r -p "$(tput setaf 2)Enter device number:$(tput sgr0) " dn < /dev/tty
 		[ ${#dn} -gt 0 ] && [[ $indices =~ $dn ]] && break || echo 'Wrong device number'
 	done
-	return $dn
+	return "$dn"
 }
 
 #
@@ -433,10 +432,10 @@ choose_camera_device() {
 
 	# Ask for device number
 	while true; do
-		read -p "$(tput setaf 2)Enter device number:$(tput sgr0) " dn < /dev/tty
+		read -r -p "$(tput setaf 2)Enter device number:$(tput sgr0) " dn < /dev/tty
 		[ ${#dn} -gt 0 ] && [[ $indices =~ $dn ]] && break || echo 'Wrong device number'
 	done
-	return $dn
+	return "$dn"
 }
 
 
@@ -455,6 +454,8 @@ get_screen_resolution() {
 	if [ "$(uname)" = "Darwin" ]; then
 		resolution="$(get_screen_device_names | $GREP "\[${screen_device_index}\]" | $GREP -oE '[0-9]*\sx\s[0-9]*' | $SED 's/\s//g')"
 	elif [ "$(uname)" = "Linux" ]; then
+		# ShellCheck does not recognize awk, as we are using it in a variable
+		# shellcheck disable=SC2016
 		resolution="$(get_screen_device_names | $GREP "\[${screen_device_index}\]" | $GREP -oE '[0-9]*x[0-9]*\spixels' | $AWK '{print $1}')"
 	fi
 
@@ -568,7 +569,7 @@ while [ $# -gt 0  ]; do
 			screen=yes
 			screen_num="$(echo "$1" | $SED 's/^..//g')"
 			if [ ${#screen_num} -gt 0 ]; then
-				if ! isint ${screen_num} > /dev/null 2>&1; then
+				if ! isint "${screen_num}" > /dev/null 2>&1; then
 					echo "Invalid screen number for -s"
 					exit -1
 				fi
@@ -587,7 +588,7 @@ while [ $# -gt 0  ]; do
 			audio=yes
 			audio_num="$(echo "$1" | $SED 's/^..//g')"
 			if [ ${#audio_num} -gt 0 ]; then
-				if ! isint ${audio_num} > /dev/null 2>&1; then
+				if ! isint "${audio_num}" > /dev/null 2>&1; then
 					echo "Invalid audio number for -a"
 					exit -1
 				fi
@@ -606,7 +607,7 @@ while [ $# -gt 0  ]; do
 			camera=yes
 			camera_num="$(echo "$1" | $SED 's/^..//g')"
 			if [ ${#camera_num} -gt 0 ]; then
-				if ! isint ${camera_num} > /dev/null 2>&1; then
+				if ! isint "${camera_num}" > /dev/null 2>&1; then
 					echo "Invalid camera number for -c"
 					exit -1
 				fi
@@ -858,7 +859,11 @@ elif [ "$(uname)" = "Linux" ]; then
 	# Get ffmpeg audio command (if audio was selected)
 	if [ ! -z ${audio+x} ] && [ "${audio}" = "yes" ]; then
 		audio_name="$(get_audio_device_names | $GREP "\[${audio_device}\]")"
+		# ShellCheck does not recognize awk, as we are using it in a variable
+		# shellcheck disable=SC2016
 		audio_card="$(echo "${audio_name}" | $GREP -oE 'card\s[0-9]*' | $AWK '{print $2}')"
+		# ShellCheck does not recognize awk, as we are using it in a variable
+		# shellcheck disable=SC2016
 		audio_device="$(echo "${audio_name}" | $GREP -oE 'device\s[0-9]*' | $AWK '{print $2}')"
 		audio_device="hw:${audio_card},${audio_device}"
 	fi
@@ -921,5 +926,5 @@ if [ "${l_dry}" = "yes" ]; then
 	echo "$FFMPEG"
 else
 	echo "$FFMPEG"
-	eval $FFMPEG
+	eval "$FFMPEG"
 fi
