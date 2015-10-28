@@ -196,7 +196,7 @@ Showing screen recording with and without camera overlay.
 
 ### 4.1 Bugs
 
-* [ ] **General:** Sound is still behind one second if using camera overlay
+* [ ] **General:** Sound is still behind one second when using camera overlay
 * [ ] **OSX:** USB Monitors (see [#1](https://github.com/cytopia/ffscreencast/issues/1))
 
 ### 4.2 Enhancements
@@ -206,7 +206,7 @@ Showing screen recording with and without camera overlay.
 * [ ] **Linux:** set sound options via cmd (alsa vs pulse)
 * [ ] **Linux:** Get default resolution/framerate for camera
 * [X] **OSX:** Get default resolution/framerate for camera
-* [ ] **General:** Set camera resolution via cmd
+* [X] **General:** ~~Set camera resolution via cmd~~ use `--cargs`
 * [ ] **General:** Set camera position via cmd
 * [ ] **General:** Be able to record one or multiple screens (monitors)
 
