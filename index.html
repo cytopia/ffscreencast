@@ -1,0 +1,332 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Ffscreencast by cytopia</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">Ffscreencast</h1>
+        <p class="header">ffmpeg screencast with video overlay and multi monitor support</p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/cytopia/ffscreencast/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/cytopia/ffscreencast/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/cytopia/ffscreencast">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/cytopia">cytopia</a></p>
+
+
+      </header>
+      <section>
+        <h1>
+<a id="ffscreencast-beta" class="anchor" href="#ffscreencast-beta" aria-hidden="true"><span class="octicon octicon-link"></span></a>ffscreencast (beta)</h1>
+
+<p><a href="https://github.com/cytopia/ffscreencast#1-features">Features</a> |
+<a href="https://github.com/cytopia/ffscreencast#2-usage">Usage</a> |
+<a href="https://github.com/cytopia/ffscreencast#3-screenshots">Screenshots</a> |
+<a href="https://github.com/cytopia/ffscreencast#4-todo">Todo</a> |
+<a href="https://github.com/cytopia/ffscreencast#5-contribution">Contribution</a> |
+<a href="https://github.com/cytopia/ffscreencast#6-license">License</a> |
+<a href="https://github.com/cytopia/ffscreencast#7-version">Version</a> |
+<a href="https://github.com/cytopia/ffscreencast#8-awesome">Awesome</a></p>
+
+<p><a href="https://travis-ci.org/cytopia/ffscreencast"><img src="https://travis-ci.org/cytopia/ffscreencast.svg?branch=master" alt="Build Status"></a>
+<a href="https://packagist.org/packages/cytopia/ffscreencast"><img src="https://poser.pugx.org/cytopia/ffscreencast/v/stable" alt="Latest Stable Version"></a> <a href="https://packagist.org/packages/cytopia/ffscreencast"><img src="https://poser.pugx.org/cytopia/ffscreencast/downloads" alt="Total Downloads"></a> <a href="https://packagist.org/packages/cytopia/ffscreencast"><img src="https://poser.pugx.org/cytopia/ffscreencast/v/unstable" alt="Latest Unstable Version"></a> <a href="http://opensource.org/licenses/MIT"><img src="https://poser.pugx.org/cytopia/ffscreencast/license" alt="License"></a>
+<a href="https://www.gnu.org/software/bash/"><img src="https://img.shields.io/badge/type-bash-red.svg" alt="Type"></a></p>
+
+<h4>
+<a id="about" class="anchor" href="#about" aria-hidden="true"><span class="octicon octicon-link"></span></a>About</h4>
+
+<p><code>ffscreencast</code> is a shell wrapper for <code>ffmpeg</code> that allows fool-proof screen recording via the command line. It will auto-detect all available monitors, cameras and microphones and is able to interactively or manually choose the desired recording device(s). Additionally <code>ffscreencast</code> will let you overlay the camera stream on top of the desktop session.</p>
+
+<p>Besides that <code>ffscreencast</code> can act as an ffmpeg command generator. Every available option can also just show the corresponding ffmpeg command instead of executing it. Non-ffmpeg commands, such as how the camera resolution is pulled and others can also be shown instead of being executed.</p>
+
+<p><img src="https://raw.githubusercontent.com/cytopia/ffscreencast/master/img/ffscreencast.png" alt="Screencast"></p>
+
+<h4>
+<a id="supported-platforms" class="anchor" href="#supported-platforms" aria-hidden="true"><span class="octicon octicon-link"></span></a>Supported platforms</h4>
+
+<table>
+<thead>
+<tr>
+<th align="center">OSX</th>
+<th align="center">Linux</th>
+<th align="center">FreeBSD</th>
+<th align="center">Windows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><a href="https://www.apple.com/osx"><img src="https://raw.githubusercontent.com/cytopia/icons/master/64x64/osx.png" alt="OSX"></a></td>
+<td align="center"><img src="https://raw.githubusercontent.com/cytopia/icons/master/64x64/linux.png" alt="Linux"></td>
+<td align="center"><a href="https://www.freebsd.org"><img src="https://raw.githubusercontent.com/cytopia/icons/master/64x64/freebsd.png" alt="FreeBSD"></a></td>
+<td align="center"><a href="https://www.microsoft.com/en-us/windows"><img src="https://raw.githubusercontent.com/cytopia/icons/master/64x64/windows.png" alt="Windows"></a></td>
+</tr>
+<tr>
+<td align="center">via <a href="https://ffmpeg.org/ffmpeg-devices.html#avfoundation">AVFoundation</a>
+</td>
+<td align="center">via <a href="https://ffmpeg.org/ffmpeg-devices.html#x11grab">x11grab</a>
+</td>
+<td align="center">coming soon</td>
+<td align="center">coming soon</td>
+</tr>
+</tbody>
+</table>
+
+<h4>
+<a id="requirements" class="anchor" href="#requirements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Requirements</h4>
+
+<table>
+<thead>
+<tr>
+<th>Program</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://www.gnu.org/software/bash/">bash</a></td>
+<td>yes</td>
+<td>The whole script is written in bash and might not be 100% Posix compliant</td>
+</tr>
+<tr>
+<td><a href="https://www.ffmpeg.org/">ffmpeg</a></td>
+<td>yes</td>
+<td>The ffmpeg binary must be present</td>
+</tr>
+<tr>
+<td><a href="http://linuxtv.org/wiki/index.php/V4l-utils">v4l2-ctl</a></td>
+<td>Linux</td>
+<td>Required for linux to list camera devices</td>
+</tr>
+<tr>
+<td><a href="http://linux.die.net/man/1/arecord">arecord</a></td>
+<td>Linux</td>
+<td>Required for linux to list sound devices</td>
+</tr>
+<tr>
+<td><a href="http://www.x.org/archive/X11R7.6/doc/man/man1/xdpyinfo.1.xhtml">xdpyinfo</a></td>
+<td>Linux</td>
+<td>Required for linux to list screends</td>
+</tr>
+</tbody>
+</table>
+
+<h2>
+<a id="1-features" class="anchor" href="#1-features" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. Features</h2>
+
+<ul>
+<li>Screen recording</li>
+<li>Camera overlay</li>
+<li>Audio support</li>
+<li>Allows to manually (parameter) or interactively choose monitor</li>
+<li>Allows to manually (parameter) or interactively choose camera</li>
+<li>Allows to manually (parameter) or interactively choose sound device</li>
+<li>ffmpeg command generation</li>
+</ul>
+
+<h2>
+<a id="2-usage" class="anchor" href="#2-usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>2. Usage</h2>
+
+<h3>
+<a id="21-overview" class="anchor" href="#21-overview" aria-hidden="true"><span class="octicon octicon-link"></span></a>2.1 Overview</h3>
+
+<p>To simply start desktop recording your screen call the program without any arguments <code>ffscreencast</code> and it will use the default screen without camera overlay and without sound.</p>
+
+<div class="highlight highlight-source-shell"><pre>$ ffscreencast
+
+Usage: ffscreencast [-s[num]] [--sargs<span class="pl-k">=</span>] [-a[num]] [--aargs<span class="pl-k">=</span>] [-c[num] [--cargs<span class="pl-k">=</span>] [--oargs<span class="pl-k">=</span>] [-e<span class="pl-k">&lt;</span>ext<span class="pl-k">&gt;</span>] [--dry]
+       ffscreencast --slist [--dry]
+       ffscreencast --alist [--dry]
+       ffscreencast --clist [--dry]
+       ffscreencast --help
+       ffscreencast --version
+       ffscreencast --test
+
+When invoked without any arguments, it will start screen recording
+on the default screen without sound and without camera overlay.
+
+Input options:
+<span class="pl-k">-s</span>[num]           (Default) Enable screen capturing [with device number X].
+                  If no device number is specified it will use the default, <span class="pl-k">if</span> only
+                  one device is present, otherwise it will ask you to choose one
+                  Use: -s or -s1
+
+--sargs=          Additional screen arguments.
+                  Specify additional ffmpeg arguments <span class="pl-k">for</span> <span class="pl-smi">the</span> screen input device.
+                  Use: --sargs=<span class="pl-s"><span class="pl-pds">"</span>-framerate 30<span class="pl-pds">"</span></span>
+                  Default: <span class="pl-s"><span class="pl-pds">'</span><span class="pl-pds">'</span></span>
+
+-a[num]           Enable audio capturing [with device number X]
+                  If no device number is specified it will use the default, <span class="pl-k">if</span> only
+                  one device is present, otherwise it will ask you to choose one
+                  Use: -a or -a1
+
+--aargs=          Additional audio arguments.
+                  Specify additional ffmpeg arguments <span class="pl-k">for</span> <span class="pl-smi">the</span> audio input device.
+                  Use: --aargs=<span class="pl-s"><span class="pl-pds">"</span>-ac 1<span class="pl-pds">"</span></span>
+                  Default: <span class="pl-s"><span class="pl-pds">'</span>-ac 2<span class="pl-pds">'</span></span>
+
+-c[num]           Add camera overlay [with device number X]
+                  If no device number is specified it will use the default, <span class="pl-k">if</span> only
+                  one device is present, otherwise it will ask you to choose one
+                  Use: -c or -c1
+
+--cargs=          Additional camera arguments
+                  Specify additional ffmpeg arguments <span class="pl-k">for</span> <span class="pl-smi">the</span> camera input device.
+                  Use: --cargs=<span class="pl-s"><span class="pl-pds">"</span>-video_size 1280x720<span class="pl-pds">"</span></span>
+                  Default: <span class="pl-s"><span class="pl-pds">'</span><span class="pl-pds">'</span></span>
+
+
+Output options:
+-e<span class="pl-k">&lt;</span>ext<span class="pl-k">&gt;</span>           Output video format extension (Default: mkv)
+                  E.g.: -emkv, or -eavi, or -emp4
+
+-oargs=           Additional output arguments
+                  Specify additional ffmpeg arguments <span class="pl-k">for</span> <span class="pl-smi">the</span> output encoding.
+                  Use: --oargs=<span class="pl-s"><span class="pl-pds">"</span>-crf 0<span class="pl-pds">"</span></span>
+                  Default: <span class="pl-s"><span class="pl-pds">'</span>-crf 0 -preset ultrafast<span class="pl-pds">'</span></span>
+
+
+Behavior options:
+--dry             Show the <span class="pl-c1">command</span> (without executing)
+
+
+List options:
+--list            List all devices
+--slist           Only list screen capturing devices (monitors)
+--alist           Only list audio capturing devices (microphones)
+--clist           Only list camera capturing devices (cams)
+
+
+System information:
+--help            Show this <span class="pl-c1">help</span> screen
+--version         Show version information
+--test            Test requirements
+</pre></div>
+
+<p>The <code>num</code> (device numbers) can be omitted. If there is only one device of its type available, <code>ffscreencast</code> will automatically default to this device, otherwise it will ask interactively which device to use for recording.</p>
+
+<h3>
+<a id="22-examples" class="anchor" href="#22-examples" aria-hidden="true"><span class="octicon octicon-link"></span></a>2.2 Examples</h3>
+
+<p>Do a screencast on the default screen (without explicitly choosing the monitor)</p>
+
+<div class="highlight highlight-source-shell"><pre>$ ffscreencast</pre></div>
+
+<p>List monitors and record on monitor 2 (<code>Capture screen 0</code>)</p>
+
+<div class="highlight highlight-source-shell"><pre>$ ffscreencast --slist
+Available screen recording devices (monitors):
+
+[2] Capture screen 0    Color LCD: Resolution: 2880 x 1800 Retina
+[3] Capture screen 1    S2431W: Resolution: 1920 x 1200
+[4] Capture screen 2    Thunderbolt Display: Resolution: 2560 x 1440
+
+
+$ ffscreencast -s2</pre></div>
+
+<p>List cameras</p>
+
+<div class="highlight highlight-source-shell"><pre>$ ffscreencast --clist
+Available camera recording devices:
+
+[0] FaceTime HD Camera (Display) (160x120@29.97 160x120@25 160x120@23.999981 160x120@14.999993 176x144@29.97 176x144@25 176x144@23.999981 176x144@14.999993 320x240@29.97 320x240@25 320x240@23.999981 320x240@14.999993 352x288@29.97 352x288@25 352x288@23.999981 352x288@14.999993 640x480@29.97 640x480@25 640x480@23.999981 640x480@14.999993 960x540@29.97 960x540@25 960x540@23.999981 960x540@14.999993 1024x576@29.97 1024x576@25 1024x576@23.999981 1024x576@14.999993 1280x720@29.97 1280x720@25 1280x720@23.999981 1280x720@14.999993)
+
+[1] FaceTime HD Camera (1280x720@30 640x480@30 320x240@30)
+</pre></div>
+
+<p>Start a screencast with camera overlay (only one camera present)</p>
+
+<div class="highlight highlight-source-shell"><pre>$ ffscreencast -c</pre></div>
+
+<p>or select the camera device</p>
+
+<div class="highlight highlight-source-shell"><pre>$ ffscreencast -c0</pre></div>
+
+<p>Show the ffmpeg command for camera recording</p>
+
+<div class="highlight highlight-source-shell"><pre>$ ffscreencast -c --dry
+
+ffmpeg -hide_banner -loglevel info -f avfoundation   -i <span class="pl-s"><span class="pl-pds">"</span>1<span class="pl-pds">"</span></span> -f avfoundation  -i <span class="pl-s"><span class="pl-pds">"</span>0<span class="pl-pds">"</span></span> -c:v libx264 -crf 0 -preset ultrafast -filter_complex <span class="pl-s"><span class="pl-pds">'</span>overlay=main_w-overlay_w-10:main_h-overlay_h-10<span class="pl-pds">'</span></span> <span class="pl-s"><span class="pl-pds">"</span>/Users/cytopia/Desktop/Screencast 2015-10-06 at 21.28.01.mkv<span class="pl-pds">"</span></span>
+</pre></div>
+
+<h2>
+<a id="3-screenshots" class="anchor" href="#3-screenshots" aria-hidden="true"><span class="octicon octicon-link"></span></a>3. Screenshots</h2>
+
+<p>Showing screen recording with and without camera overlay.</p>
+
+<p><img src="https://raw.githubusercontent.com/cytopia/ffscreencast/master/img/ffscreencast.png" alt="Screencast">
+<img src="https://raw.githubusercontent.com/cytopia/ffscreencast/master/img/ffscreencast2.png" alt="Screencast"></p>
+
+<h2>
+<a id="4-todo" class="anchor" href="#4-todo" aria-hidden="true"><span class="octicon octicon-link"></span></a>4. Todo</h2>
+
+<h3>
+<a id="41-bugs" class="anchor" href="#41-bugs" aria-hidden="true"><span class="octicon octicon-link"></span></a>4.1 Bugs</h3>
+
+<ul>
+<li>[ ] <strong>General:</strong> Sound is still behind one second when using camera overlay</li>
+<li>[ ] <strong>OSX:</strong> USB Monitors (see <a href="https://github.com/cytopia/ffscreencast/issues/1">#1</a>)</li>
+</ul>
+
+<h3>
+<a id="42-enhancements" class="anchor" href="#42-enhancements" aria-hidden="true"><span class="octicon octicon-link"></span></a>4.2 Enhancements</h3>
+
+<ul>
+<li>[ ] <strong>BSD:</strong> Support for [Free]BSD (needs testing)</li>
+<li>[ ] <strong>Windows:</strong> Support for Windows (via cygwin and dshow)</li>
+<li>[ ] <strong>Linux:</strong> set sound options via cmd (alsa vs pulse)</li>
+<li>[ ] <strong>Linux:</strong> Get default resolution/framerate for camera</li>
+<li>[X] <strong>OSX:</strong> Get default resolution/framerate for camera</li>
+<li>[X] <strong>General:</strong> <del>Set camera resolution via cmd</del> use <code>--cargs</code>
+</li>
+<li>[ ] <strong>General:</strong> Set camera position via cmd</li>
+<li>[ ] <strong>General:</strong> Be able to record one or multiple screens (monitors)</li>
+</ul>
+
+<h2>
+<a id="5-contribution" class="anchor" href="#5-contribution" aria-hidden="true"><span class="octicon octicon-link"></span></a>5. Contribution</h2>
+
+<p>Contributors are welcome.</p>
+
+<h2>
+<a id="6-license" class="anchor" href="#6-license" aria-hidden="true"><span class="octicon octicon-link"></span></a>6. License</h2>
+
+<p><a href="http://opensource.org/licenses/mit"><img src="https://poser.pugx.org/cytopia/ffscreencast/license" alt="license"></a></p>
+
+<h2>
+<a id="7-version" class="anchor" href="#7-version" aria-hidden="true"><span class="octicon octicon-link"></span></a>7. Version</h2>
+
+<p>For a complete list of verion see <a href="CHANGELOG.md">CHANGELOG</a></p>
+
+<h2>
+<a id="8-awesome" class="anchor" href="#8-awesome" aria-hidden="true"><span class="octicon octicon-link"></span></a>8. Awesome</h2>
+
+<p>Added by the following <a href="https://github.com/sindresorhus/awesome"><img src="https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg" alt="Awesome"></a> lists:</p>
+
+<ul>
+<li><a href="https://github.com/aharris88/awesome-cli">awesome-cli</a></li>
+</ul>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
+  </body>
+</html>
