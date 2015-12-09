@@ -745,7 +745,7 @@ fi
 ########################################
 
 # Does the user want screen recording?
-if [ ! -z ${screen+x} ] && [ "${screen}" = "yes" ]; then
+if [ ! -z "${screen+x}" ] && [ "${screen}" = "yes" ]; then
 
 	# If screen device was set via argument list, validate it
 	if [ ${#screen_num} -gt 0 ]; then
@@ -768,7 +768,7 @@ if [ ! -z ${screen+x} ] && [ "${screen}" = "yes" ]; then
 fi
 
 # Does the user want audio recording?
-if [ ! -z ${audio+x} ] && [ "${audio}" = "yes" ]; then
+if [ ! -z "${audio+x}" ] && [ "${audio}" = "yes" ]; then
 
 	# If screen device was set via argument list, validate it
 	if [ ${#audio_num} -gt 0 ]; then
@@ -791,7 +791,7 @@ if [ ! -z ${audio+x} ] && [ "${audio}" = "yes" ]; then
 fi
 
 # Does the user want camera recording?
-if [ ! -z ${camera+x} ] && [ "${camera}" = "yes" ]; then
+if [ ! -z "${camera+x}" ] && [ "${camera}" = "yes" ]; then
 
 	# If camera device was set via argument list, validate it
 	if [ ${#camera_num} -gt 0 ]; then
@@ -827,7 +827,7 @@ screen_resolution="$(get_screen_resolution "${screen_device}")"
 
 # Get camera resolution/framerate of selected camera
 # TODO: Currently only works for OSX
-if [ ! -z ${camera+x} ] && [ "${camera}" = "yes" ]; then
+if [ ! -z "${camera+x}" ] && [ "${camera}" = "yes" ]; then
 	camera_resolution="$(get_default_camera_resolution "${camera_device}")"
 	camera_framerate="$(get_camera_framerate "${camera_device}" "${camera_resolution}")"
 fi
@@ -841,11 +841,11 @@ if [ "$(uname)" = "Darwin" ]; then
 	FF_INPUT_FRAMEWORK_CAMERA="avfoundation"
 
 	# Get ffmpeg audio command (if audio was selected)
-	if [ ! -z ${audio+x} ] && [ "${audio}" = "yes" ]; then
+	if [ ! -z "${audio+x}" ] && [ "${audio}" = "yes" ]; then
 		audio_device=":${audio_device}"
 	fi
 
-	if [ ! -z ${camera+x} ] && [ "${camera}" = "yes" ]; then
+	if [ ! -z "${camera+x}" ] && [ "${camera}" = "yes" ]; then
 		camera_fix="-video_size ${camera_resolution} -framerate ${camera_framerate}"
 	fi
 
@@ -857,7 +857,7 @@ elif [ "$(uname)" = "Linux" ]; then
 	FF_INPUT_FRAMEWORK_CAMERA="v4l2"
 
 	# Get ffmpeg audio command (if audio was selected)
-	if [ ! -z ${audio+x} ] && [ "${audio}" = "yes" ]; then
+	if [ ! -z "${audio+x}" ] && [ "${audio}" = "yes" ]; then
 		audio_name="$(get_audio_device_names | $GREP "\[${audio_device}\]")"
 		# ShellCheck does not recognize awk, as we are using it in a variable
 		# shellcheck disable=SC2016
@@ -869,7 +869,7 @@ elif [ "$(uname)" = "Linux" ]; then
 	fi
 
 	# Get camera device
-	if [ ! -z ${camera+x} ] && [ "${camera}" = "yes" ]; then
+	if [ ! -z "${camera+x}" ] && [ "${camera}" = "yes" ]; then
 		camera_device="$(get_camera_device_names | $GREP "\[${camera_device}\]" | $GREP -oE '/dev/video[0-9]*')"
 		camera_fix=""
 	fi
@@ -894,13 +894,13 @@ else
 fi
 
 # Camera Options (1/2)
-if [ ! -z ${camera+x} ] && [ "${camera}" = "yes" ]; then
+if [ ! -z "${camera+x}" ] && [ "${camera}" = "yes" ]; then
 	FFMPEG="${FFMPEG} -thread_queue_size 512"
 	FFMPEG="${FFMPEG} -f ${FF_INPUT_FRAMEWORK_CAMERA} ${camera_fix} ${cargs} -i \"${camera_device}\""
 fi
 
 # Sound Options
-if [ ! -z ${audio+x} ] && [ "${audio}" = "yes" ]; then
+if [ ! -z "${audio+x}" ] && [ "${audio}" = "yes" ]; then
 	FFMPEG="${FFMPEG} -thread_queue_size 512"
 	FFMPEG="${FFMPEG} -f ${FF_INPUT_FRAMEWORK_SOUND} ${aargs} -i \"${audio_device}\""
 	FFMPEG="${FFMPEG} -c:a ${audio_codec}"
@@ -910,15 +910,12 @@ FFMPEG="${FFMPEG} -c:v ${video_codec}"
 FFMPEG="${FFMPEG} ${oargs}"
 
 # Camera Options (2/2)
-if [ ! -z ${camera+x} ] && [ "${camera}" = "yes" ]; then
+if [ ! -z "${camera+x}" ] && [ "${camera}" = "yes" ]; then
 	FFMPEG="${FFMPEG} -filter_complex 'overlay=main_w-overlay_w-10:main_h-overlay_h-10'"
 fi
 
 FFMPEG="${FFMPEG} -threads 0"
 FFMPEG="${FFMPEG} \"${DIR}/${NAME}.${ext}\""
-
-
-
 
 
 #### RUN
@@ -928,3 +925,4 @@ else
 	echo "$FFMPEG"
 	eval "$FFMPEG"
 fi
+
