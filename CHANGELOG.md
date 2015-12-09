@@ -1,8 +1,12 @@
-Version 0.5 (unreleased)
+Version 0.6 (unreleased)
 -----------
 
+Version 0.5
+-----------
+
+- [Fix] Fixed quoting issue
 - [Enh] Pass shellcheck
-- [FIX] Remove `-video_size` option if no resolution was found
+- [Fix] Remove `-video_size` option if no resolution was found
 - [Fix] Replaced commands (grep, awk, sed) with full system path to avoid aliases
 
 

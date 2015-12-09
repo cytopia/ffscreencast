@@ -1,4 +1,4 @@
-# ffscreencast (beta)
+# ffscreencast
 
 [Features](https://github.com/cytopia/ffscreencast#1-features) |
 [Usage](https://github.com/cytopia/ffscreencast#2-usage) |
