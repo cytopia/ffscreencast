@@ -197,7 +197,7 @@ Showing screen recording with and without camera overlay.
 ### 4.1 Bugs
 
 * [ ] **General:** Sound is still behind one second when using camera overlay
-* [X] **OSX:** USB Monitors (see [#1](https://github.com/cytopia/ffscreencast/issues/1))
+* [X] **OSX:** ~~USB Monitors (see [#1](https://github.com/cytopia/ffscreencast/issues/1))~~
 
 ### 4.2 Enhancements
 
