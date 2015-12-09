@@ -1,4 +1,4 @@
-language: sh
+language: baseh
 
 before_script:
   - sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ trusty-backports restricted main universe"
@@ -6,5 +6,5 @@ before_script:
   - sudo apt-get install -qq shellcheck
 
 script:
-  - shellcheck --shell=sh ffscreencast
+  - shellcheck --shell=bash ffscreencast
 
