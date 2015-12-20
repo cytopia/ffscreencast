@@ -17,9 +17,9 @@
 
 INFO_AUTHOR="Patrick Plocke <patrick@plocke.de>"
 INFO_GPGKEY="0x28BF179F"
-INFO_DATE="2015-12-09"
+INFO_DATE="2015-12-20"
 INFO_LICENSE="MIT"
-INFO_VERSION="0.5"
+INFO_VERSION="0.6"
 
 
 
@@ -177,9 +177,9 @@ check_requirements() {
 	uname="$(uname)"
 
 	#### 1.) Check Operating System
-	if [ "${uname}" != "Linux"  ] && [ "${uname}" != 'Darwin'  ]; then
+	if [ "${uname}" != "Linux"  ] && [ "${uname}" != 'Darwin'  ] && [ "${uname}" != 'FreeBSD'  ]; then
 		echo "Unsupported operating system."
-		echo "It currently only works on Linux and OSX."
+		echo "It currently only works on Linux, FreeBSD and OSX."
 		echo "Sorry ;-)"
 		return 1
 	elif [ "${1}" = "verbose" ]; then
@@ -247,6 +247,34 @@ check_requirements() {
 		fi
 	fi
 
+	#### 5.) Check FreeBSD
+	if [ "${uname}" = "FreeBSD" ]; then
+		if ! ffmpeg 2>&1 | $GREP '\-\-enable-x11grab' > /dev/null 2>&1; then
+			echo "FreeBSD: x11grab not available in ffmpeg"
+			return 1
+		elif [ "${1}" = "verbose" ]; then
+			echo "[OK] FreeBSD: x11grab available in ffmpeg"
+		fi
+
+		if ! command -v v4l2-ctl > /dev/null 2>&1; then
+			echo "FreeBSD: v4l2-ctl not found."
+			echo
+			echo "FreeBSD: install multimedia/libv4l"
+			return 1
+		elif [ "${1}" = "verbose" ]; then
+			echo "[OK] FreeBSD: v4l2-ctl found: $(which v4l2-ctl)"
+		fi
+
+		if ! command -v xdpyinfo > /dev/null 2>&1; then
+			echo "FreeBSD: xdpyinfo not found."
+			echo
+			echo "FreeBSD: install x11/xdpyinfo"
+			return 1
+		elif [ "${1}" = "verbose" ]; then
+			echo "[OK] FreeBSD: xdpyinfo found: $(which xdpyinfo)"
+		fi
+	fi
+
 	return 0
 }
 
@@ -265,6 +293,8 @@ get_screen_device_names() {
 		DEVICE_NAMES="paste <(echo \"\$(ffmpeg -f avfoundation -list_devices true -i '' 2>&1 | $GREP 'AVFoundation input' | $SED -n '/AVFoundation video/,/AVFoundation audio/p' | $GREP -oE '\[[0-9]\].*$' | $GREP 'Capture screen')\") <(echo \"\$(system_profiler SPDisplaysDataType | $SED -n '/^\s.*Displays:$/,\$p' | $GREP -vE '^\s.*Displays:$' | $GREP -E '^\s.*w*:$|Resolution:' | $SED 'N;s/\n/ /' | $SED 's/ \{1,\}/ /g' | $SED 's/^[ \t ]*//;s/[ \t ]*$//')\")"
 	elif [ "$(uname)" = "Linux" ]; then
 		DEVICE_NAMES="xdpyinfo | $GREP -A 1 -E '^screen #[0-9]*:' | $GREP -vE '^\-\-' | $SED 'N;s/\n/ /' | $SED 's/dimensions://g' | $SED 's/ \{1,\}/ /g' | $AWK '{printf \"[%d] %s\n\", NR, \$0}'"
+	elif [ "$(uname)" = "FreeBSD" ]; then
+		DEVICE_NAMES="xdpyinfo | $GREP -A 1 -E '^screen #[0-9]*:' | $GREP -vE '^\-\-' | $SED 'N;s/\n/ /' | $SED 's/dimensions://g' | $SED 's/ \{1,\}/ /g' | $AWK '{printf \"[%d] %s\n\", NR, \$0}'"
 	fi
 	if [ "${1}" = "yes" ]; then echo "${DEVICE_NAMES}"; else eval "${DEVICE_NAMES}"; fi
 }
@@ -278,6 +308,8 @@ get_audio_device_names() {
 		DEVICE_NAMES="ffmpeg -f avfoundation -list_devices true -i '' 2>&1 | $GREP 'AVFoundation input' | $SED -n '/AVFoundation audio/,\$p' | $GREP -oE '\[[0-9]\].*$'"
 	elif [ "$(uname)" = "Linux" ]; then
 		DEVICE_NAMES="arecord -l | $GREP -E '^card\s[0-9]*:' | $AWK '{printf \"[%d] %s\n\", NR, \$0}'"
+	elif [ "$(uname)" = "FreeBSD" ]; then
+		DEVICE_NAMES="cat /dev/sndstat | $GREP '(play/rec)' | $AWK '{printf \"[%d] %s\n\", NR, \$0}'"
 	fi
 	if [ "${1}" = "yes" ]; then echo "${DEVICE_NAMES}"; else eval "${DEVICE_NAMES}"; fi
 }
@@ -290,6 +322,8 @@ get_camera_device_names() {
 	if [ "$(uname)" = "Darwin" ]; then
 		DEVICE_NAMES="ffmpeg -f avfoundation -list_devices true -i '' 2>&1 | $GREP 'AVFoundation input' | $SED -n '/AVFoundation video/,/AVFoundation audio/p' | $GREP -oE '\[[0-9]\].*$' | $GREP 'Camera' | while read line; do tmp=\"\$(echo \$line | $GREP -oE '^\[[0-9]*\]' | $SED 's/\[//' | $SED 's/\]//')\"; reso=\"\$(ffmpeg -t 1 -f avfoundation -r 0.1 -i \$tmp -f mkv - 2>&1 | $GREP '\[avfoundation' | $SED -n '/Supported modes:/,\$p' | $GREP -oE '[0-9]*x[0-9]*\@\[.*fps' | $SED 's/\[[0-9]*\.[0-9]*//' | $SED 's/\s//' | $SED 's/]fps//' | $AWK '{ if(\$0 ~ /\./) sub(\"\\\.*0+\$\",\"\");print}' | tr '\n' ' ' | xargs)\"; echo \"\$line (\$reso)\"; done"
 	elif [ "$(uname)" = "Linux" ]; then
+		DEVICE_NAMES="v4l2-ctl --list-devices | $GREP -B 1 '/dev/video' | $GREP -vE '^\-\-' | $SED 'N;s/\n/ /' | $SED 's/ \{1,\}/ /g' | $AWK '{printf \"[%d] %s\n\", NR, \$0}'"
+	elif [ "$(uname)" = "FreeBSD" ]; then
 		DEVICE_NAMES="v4l2-ctl --list-devices | $GREP -B 1 '/dev/video' | $GREP -vE '^\-\-' | $SED 'N;s/\n/ /' | $SED 's/ \{1,\}/ /g' | $AWK '{printf \"[%d] %s\n\", NR, \$0}'"
 	fi
 	if [ "${1}" = "yes" ]; then echo "${DEVICE_NAMES}"; else eval "${DEVICE_NAMES}"; fi
@@ -457,6 +491,10 @@ get_screen_resolution() {
 		# ShellCheck does not recognize awk, as we are using it in a variable
 		# shellcheck disable=SC2016
 		resolution="$(get_screen_device_names | $GREP "\[${screen_device_index}\]" | $GREP -oE '[0-9]*x[0-9]*\spixels' | $AWK '{print $1}')"
+	elif [ "$(uname)" = "FreeBSD" ]; then
+		# ShellCheck does not recognize awk, as we are using it in a variable
+		# shellcheck disable=SC2016
+		resolution="$(get_screen_device_names | $GREP "\[${screen_device_index}\]" | $GREP -oE '[0-9]*x[0-9]*\spixels' | $AWK '{print $1}')"
 	fi
 
 	# Format: [0-9].*x[0-9].* (e.g.: 640x480)
@@ -491,6 +529,9 @@ get_default_camera_resolution() {
 	# TODO: Add Linux support
 	elif [ "$(uname)" = "Linux" ]; then
 		resolution=""
+	# TODO: Add FreeBSD support
+	elif [ "$(uname)" = "FreeBSD" ]; then
+		resolution=""
 	fi
 	echo "${resolution}"
 }
@@ -508,6 +549,9 @@ get_camera_framerate() {
 		framerate="$(get_camera_device_names | $GREP "\[${camera_device_index}\]" | $GREP -oE "${camera_resolution}@[0-9]+(\.)*[0-9]*" | $SED "s/${camera_resolution}@//")"
 	# TODO: Add Linux support
 	elif [ "$(uname)" = "Linux" ]; then
+		framerate=""
+	# TODO: Add FreeBSD support
+	elif [ "$(uname)" = "FreeBSD" ]; then
 		framerate=""
 	fi
 	echo "${framerate}"
@@ -866,6 +910,32 @@ elif [ "$(uname)" = "Linux" ]; then
 		# shellcheck disable=SC2016
 		audio_device="$(echo "${audio_name}" | $GREP -oE 'device\s[0-9]*' | $AWK '{print $2}')"
 		audio_device="hw:${audio_card},${audio_device}"
+	fi
+
+	# Get camera device
+	if [ ! -z "${camera+x}" ] && [ "${camera}" = "yes" ]; then
+		camera_device="$(get_camera_device_names | $GREP "\[${camera_device}\]" | $GREP -oE '/dev/video[0-9]*')"
+		camera_fix=""
+	fi
+
+	screen_device=":0.0"
+
+
+elif [ "$(uname)" = "FreeBSD" ]; then
+
+	FF_INPUT_FRAMEWORK_SCREEN="x11grab"
+	FF_INPUT_FRAMEWORK_SOUND="oss"
+	FF_INPUT_FRAMEWORK_CAMERA="v4l2"
+
+	# Get ffmpeg audio command (if audio was selected)
+	if [ ! -z "${audio+x}" ] && [ "${audio}" = "yes" ]; then
+		audio_name="$(get_audio_device_names | $GREP "\[${audio_device}\]")"
+		# ShellCheck does not recognize awk, as we are using it in a variable
+		# shellcheck disable=SC2016
+		audio_card="$(echo "${audio_name}" | $GREP -oE 'pcm[0-9]*')"
+		# ShellCheck does not recognize awk, as we are using it in a variable
+		# shellcheck disable=SC2016
+		audio_device="$(echo "${audio_card}" | $SED 's/pcm/\/dev\/dsp/')"
 	fi
 
 	# Get camera device

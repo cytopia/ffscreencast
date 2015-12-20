@@ -1,6 +1,9 @@
 Version 0.6 (unreleased)
 -----------
 
+- [Enh] FreeBSD support
+
+
 Version 0.5
 -----------
 

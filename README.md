@@ -29,7 +29,7 @@ Besides that `ffscreencast` can act as an ffmpeg command generator. Every availa
 | OSX    | Linux | FreeBSD | Windows |
 | :----: | :----: | :----: | :----: |
 | [![OSX](https://raw.githubusercontent.com/cytopia/icons/master/64x64/osx.png)](https://www.apple.com/osx) | ![Linux](https://raw.githubusercontent.com/cytopia/icons/master/64x64/linux.png) | [![FreeBSD](https://raw.githubusercontent.com/cytopia/icons/master/64x64/freebsd.png)](https://www.freebsd.org) | [![Windows](https://raw.githubusercontent.com/cytopia/icons/master/64x64/windows.png)](https://www.microsoft.com/en-us/windows) |
-| via [AVFoundation](https://ffmpeg.org/ffmpeg-devices.html#avfoundation) | via [x11grab](https://ffmpeg.org/ffmpeg-devices.html#x11grab) | coming soon | coming soon |
+| via [AVFoundation](https://ffmpeg.org/ffmpeg-devices.html#avfoundation) | via [x11grab](https://ffmpeg.org/ffmpeg-devices.html#x11grab) | via [x11grab](https://ffmpeg.org/ffmpeg-devices.html#x11grab) | coming soon |
 
 
 
@@ -39,9 +39,9 @@ Besides that `ffscreencast` can act as an ffmpeg command generator. Every availa
 | ------------- | ------------- | -------- |
 | [bash](https://www.gnu.org/software/bash/)  | yes  | The whole script is written in bash and might not be 100% Posix compliant |
 | [ffmpeg](https://www.ffmpeg.org/)  | yes  | The ffmpeg binary must be present |
-| [v4l2-ctl](http://linuxtv.org/wiki/index.php/V4l-utils) | Linux | Required for linux to list camera devices |
+| [v4l2-ctl](http://linuxtv.org/wiki/index.php/V4l-utils) | Linux, FreeBSD | Required for linux to list camera devices |
 | [arecord](http://linux.die.net/man/1/arecord) | Linux | Required for linux to list sound devices |
-| [xdpyinfo](http://www.x.org/archive/X11R7.6/doc/man/man1/xdpyinfo.1.xhtml) | Linux | Required for linux to list screends |
+| [xdpyinfo](http://www.x.org/archive/X11R7.6/doc/man/man1/xdpyinfo.1.xhtml) | Linux, FreeBSD | Required for linux to list screends |
 
 
 ## 1. Features
