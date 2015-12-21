@@ -1,11 +1,18 @@
 CHANGELOG
 =========
 
-Version 0.6 (unreleased)
+Version 0.7 (unreleased)
+-----------
+
+- none yet
+
+
+Version 0.6
 -----------
 
 - [Enh] Major code rewrite to better support new methods/os
 - [Fix] Only check for requirements that are being requested
+- [Enh] Detailed info about missing requirements
 
 Version 0.5
 -----------
