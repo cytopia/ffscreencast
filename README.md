@@ -13,27 +13,22 @@
 [![Latest Stable Version](https://poser.pugx.org/cytopia/ffscreencast/v/stable)](https://packagist.org/packages/cytopia/ffscreencast) [![Total Downloads](https://poser.pugx.org/cytopia/ffscreencast/downloads)](https://packagist.org/packages/cytopia/ffscreencast) [![Latest Unstable Version](https://poser.pugx.org/cytopia/ffscreencast/v/unstable)](https://packagist.org/packages/cytopia/ffscreencast) [![License](https://poser.pugx.org/cytopia/ffscreencast/license)](http://opensource.org/licenses/MIT)
 [![Type](https://img.shields.io/badge/type-bash-red.svg)](https://www.gnu.org/software/bash/)
 
-
-#### About
+**About**
 
 `ffscreencast` is a shell wrapper for `ffmpeg` that allows fool-proof screen recording via the command line. It will auto-detect all available monitors, cameras and microphones and is able to interactively or manually choose the desired recording device(s). Additionally `ffscreencast` will let you overlay the camera stream on top of the desktop session.
 
 Besides that `ffscreencast` can act as an ffmpeg command generator. Every available option can also just show the corresponding ffmpeg command instead of executing it. Non-ffmpeg commands, such as how the camera resolution is pulled and others can also be shown instead of being executed.
 
-
 ![Screencast](https://raw.githubusercontent.com/cytopia/ffscreencast/master/img/ffscreencast.png)
 
-
-#### Supported platforms
+**Supported platforms**
 
 | OSX    | Linux | FreeBSD | Windows |
 | :----: | :----: | :----: | :----: |
 | [![OSX](https://raw.githubusercontent.com/cytopia/icons/master/64x64/osx.png)](https://www.apple.com/osx) | ![Linux](https://raw.githubusercontent.com/cytopia/icons/master/64x64/linux.png) | [![FreeBSD](https://raw.githubusercontent.com/cytopia/icons/master/64x64/freebsd.png)](https://www.freebsd.org) | [![Windows](https://raw.githubusercontent.com/cytopia/icons/master/64x64/windows.png)](https://www.microsoft.com/en-us/windows) |
 | via [AVFoundation](https://ffmpeg.org/ffmpeg-devices.html#avfoundation) | via [x11grab](https://ffmpeg.org/ffmpeg-devices.html#x11grab) | coming soon | coming soon |
 
-
-
-#### Requirements
+**Requirements**
 
 | Program  | Required | Description |
 | ------------- | ------------- | -------- |
@@ -42,7 +37,6 @@ Besides that `ffscreencast` can act as an ffmpeg command generator. Every availa
 | [v4l2-ctl](http://linuxtv.org/wiki/index.php/V4l-utils) | Linux | Required for linux to list camera devices |
 | [arecord](http://linux.die.net/man/1/arecord) | Linux | Required for linux to list sound devices |
 | [xdpyinfo](http://www.x.org/archive/X11R7.6/doc/man/man1/xdpyinfo.1.xhtml) | Linux | Required for linux to list screends |
-
 
 ## 1. Features
 
@@ -139,11 +133,13 @@ The `num` (device numbers) can be omitted. If there is only one device of its ty
 ### 2.2 Examples
 
 Do a screencast on the default screen (without explicitly choosing the monitor)
+
 ```shell
 $ ffscreencast
 ```
 
 List monitors and record on monitor 2 (`Capture screen 0`)
+
 ```shell
 $ ffscreencast --slist
 Available screen recording devices (monitors):
@@ -157,6 +153,7 @@ $ ffscreencast -s2
 ```
 
 List cameras
+
 ```shell
 $ ffscreencast --clist
 Available camera recording devices:
@@ -168,15 +165,19 @@ Available camera recording devices:
 ```
 
 Start a screencast with camera overlay (only one camera present)
+
 ```shell
 $ ffscreencast -c
 ```
+
 or select the camera device
+
 ```shell
 $ ffscreencast -c0
 ```
 
 Show the ffmpeg command for camera recording
+
 ```shell
 $ ffscreencast -c --dry
 
@@ -190,7 +191,6 @@ Showing screen recording with and without camera overlay.
 
 ![Screencast](https://raw.githubusercontent.com/cytopia/ffscreencast/master/img/ffscreencast.png)
 ![Screencast](https://raw.githubusercontent.com/cytopia/ffscreencast/master/img/ffscreencast2.png)
-
 
 ## 4. Todo
 
@@ -210,16 +210,16 @@ Showing screen recording with and without camera overlay.
 * [ ] **General:** Set camera position via cmd
 * [ ] **General:** Be able to record one or multiple screens (monitors)
 
-
 ## 5. Contribution
+
 Contributors are welcome.
 
-
 ## 6. License
+
 [![license](https://poser.pugx.org/cytopia/ffscreencast/license)](http://opensource.org/licenses/mit)
 
-
 ## 7. Version
+
 For a complete list of verion see [CHANGELOG](CHANGELOG.md)
 
 ## 8. Awesome
