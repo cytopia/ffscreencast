@@ -1,6 +1,9 @@
 Version 0.6 (unreleased)
 -----------
 
+- [Enh] Major code rewrite to better support new methods/os
+- [Fix] Only check for requirements that are being requested (e.g. Only check for cam if you want a cam overlay.)
+
 Version 0.5
 -----------
 

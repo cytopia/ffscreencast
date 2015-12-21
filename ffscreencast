@@ -17,15 +17,22 @@
 
 INFO_AUTHOR="Patrick Plocke <patrick@plocke.de>"
 INFO_GPGKEY="0x28BF179F"
-INFO_DATE="2015-12-09"
+INFO_DATE="2015-12-21"
 INFO_LICENSE="MIT"
-INFO_VERSION="0.5"
+INFO_VERSION="0.6"
+INFO_NAME="ffscreencast"
 
 
 
 ################################################################################
+#
+# VARIABLES
+#
+################################################################################
+
+############################################################
 # File name and path
-################################################################################
+############################################################
 
 # Name of the output file
 DATE=$(date +%Y-%m-%d)
@@ -36,38 +43,89 @@ NAME="Screencast ${DATE} at ${TIME}"
 DIR="${HOME}/Desktop"
 
 
-################################################################################
+
+############################################################
+# FFmpeg Outout options
+############################################################
+
+# Default video container extension
+# Alternatively: 'mp4' or 'avi'
+OUTPUT_EXT="mkv"
+
+# Default audio output codec
+# Alternatively: 'pcm_s16le'
+OUTPUT_ACODEC="libfaac"
+
+# Default video output codec
+# Alternatively: 'libx265'
+OUTPUT_VCODEC="libx264"
+
+
+
+# Default Screen recording arguments
+S_ARGS=""
+
+# Default audio recording arguments
+A_ARGS="-ac 2"
+
+# Default camera recording arguments
+C_ARGS=""
+
+# Default misc output arguments
+O_ARGS="-crf 0 -preset ultrafast"
+
+
+
+############################################################
+# Default selected recording devices
+############################################################
+
+# Default recording behavior
+RECORD_S="yes"
+RECORD_A="no"
+RECORD_C="no"
+
+# What listed device number has been chosen to record?
+CHOSEN_S_NUM=""
+CHOSEN_A_NUM=""
+CHOSEN_C_NUM=""
+
+
+
+############################################################
 # Binaries
-################################################################################
-GREP="$(which grep 2>/dev/null)"
-AWK="$(which awk 2>/dev/null)"
-SED="$(which sed 2>/dev/null)"
+############################################################
+
+# Get full path of required tools in case someone has created
+# a custom alias on these.
+GREP="$(which grep 2> /dev/null)"
+AWK="$(which awk 2> /dev/null)"
+SED="$(which sed 2> /dev/null)"
+FFMPEG="$(which ffmpeg 2> /dev/null)"
+UNAME="$(uname 2> /dev/null)"
 
 
 
-################################################################################
-# FFmpeg Options
-################################################################################
+############################################################
+# Misc
+############################################################
 
-# Get current resolution
-#RESO=$(system_profiler SPDisplaysDataType | grep Resolution)
-#WIDTH=$(echo $RESO | awk '{print $2}')
-#HEIGHT=$(echo $RESO | awk '{print $4}')
-
-# -qp 0 tells x264 to encode in lossless mode,
-# -preset ultrafast advises it to do so fast.
-#LOSSLESS="-qp 0"
-#LOSSLESS=""
-#PRESET="ultrafast"
-#PIXFMT="uyvy422"
-#OPTIONS="-framerate ${FF_FRAME_RATE} "
-# ffmpeg -f avfoundation -i 1 -c:v libx264rgb -crf 0 -preset:v ultrafast -c:a pcm_s16le -af aresample=async=1:first_pts=0 out.mkv
+# Program exit codes
+EXIT_ERR="1"
+EXIT_OK="0"
 
 
 
 
 ################################################################################
-# Helper Functions
+#
+# GENERIC FUNCTIONS
+#
+################################################################################
+
+
+################################################################################
+# Helper Function
 ################################################################################
 
 #
@@ -80,23 +138,31 @@ isint() {
 }
 
 
+################################################################################
+# Info Function
+################################################################################
 
-################################################################################
-# About Function
-################################################################################
+#
+# Usage
+#
+print_usage() {
+	printf "%s %s %s\n" "Usage:" "${INFO_NAME}" "[-s[num]] [--sargs=] [-a[num]] [--aargs=] [-c[num] [--cargs=] [--oargs=] [-e<ext>] [--dry]"
+	printf "%s %s %s\n" "      " "${INFO_NAME}" "--slist [--dry]"
+	printf "%s %s %s\n" "      " "${INFO_NAME}" "--alist [--dry]"
+	printf "%s %s %s\n" "      " "${INFO_NAME}" "--clist [--dry]"
+	printf "%s %s %s\n" "      " "${INFO_NAME}" "--help"
+	printf "%s %s %s\n" "      " "${INFO_NAME}" "--version"
+	printf "%s %s %s\n" "      " "${INFO_NAME}" "--test"
+}
 
 #
 # Display program usage
 #
-usage() {
-	printf "%s %s %s\n" "Usage:" "${0}" "[-s[num]] [--sargs=] [-a[num]] [--aargs=] [-c[num] [--cargs=] [--oargs=] [-e<ext>] [--dry]"
-	printf "%s %s %s\n" "      " "${0}" "--slist [--dry]"
-	printf "%s %s %s\n" "      " "${0}" "--alist [--dry]"
-	printf "%s %s %s\n" "      " "${0}" "--clist [--dry]"
-	printf "%s %s %s\n" "      " "${0}" "--help"
-	printf "%s %s %s\n" "      " "${0}" "--version"
-	printf "%s %s %s\n" "      " "${0}" "--test"
+print_help() {
+
+	print_usage
 	echo
+
 	echo "When invoked without any arguments, it will start screen recording"
 	echo "on the default screen without sound and without camera overlay."
 	echo
@@ -162,93 +228,200 @@ usage() {
 #
 # Display program version and credits
 #
-version() {
+print_version() {
 	printf "Version: %s (%s)\n" "${INFO_VERSION}" "${INFO_DATE}"
 	printf "Author:  %s (%s)\n" "${INFO_AUTHOR}" "${INFO_GPGKEY}"
 	printf "License: %s\n" "${INFO_LICENSE}"
 }
 
+
 #
-# Check program requirements
+# Display program requirements
 #
-# @param	string		"verbose"
-# @return	integer		Return code (0: OK | 1: ERR)
-check_requirements() {
-	uname="$(uname)"
+print_requirements() {
 
 	#### 1.) Check Operating System
-	if [ "${uname}" != "Linux"  ] && [ "${uname}" != 'Darwin'  ]; then
-		echo "Unsupported operating system."
-		echo "It currently only works on Linux and OSX."
-		echo "Sorry ;-)"
-		return 1
-	elif [ "${1}" = "verbose" ]; then
-		echo "[OK] Operating system supported: ${uname}"
+	if ! can_run_on_os; then
+		echo "[ERR]  Unsupported operating system."
+		echo "       It currently only works on Linux and OSX."
+		echo "       Sorry ;-)"
+	else
+		echo "[OK]   Operating system supported: ${UNAME}"
 	fi
 
 	#### 2.) Check ffmpeg
 	if ! command -v ffmpeg > /dev/null 2>&1; then
-		echo "ffmpeg not found."
-		return 1
-	elif [ "${1}" = "verbose" ]; then
-		echo "[OK] ffmpeg found: $(which ffmpeg)"
+		echo "[ERR]  ffmpeg not found."
+	else
+		echo "[OK]   ffmpeg found: $(which ffmpeg)"
 	fi
 
 	#### 3.) Check OSX
-	if [ "${uname}" = "Darwin" ]; then
-		if ! ffmpeg -f avfoundation -list_devices true -i "" 2>&1 | $GREP 'AVFoundation input device' > /dev/null 2>&1; then
-			echo "OSX: AVFoundation not available in ffmpeg"
-			return 1
-		elif [ "${1}" = "verbose" ]; then
-			echo "[OK] OSX: AVFoundation available in ffmpeg"
+	if [ "${UNAME}" = "Darwin" ]; then
+		if ! can_use_ffmpeg; then
+			echo "[ERR]  [OSX]: AVFoundation not available in ffmpeg."
+			echo "          - Desktop recording not possible."
+			echo "          - Sound recording not possible."
+			echo "          - Camera overlay not possible."
+		else
+			echo "[OK]   [OSX]: AVFoundation available in ffmpeg."
+			echo "          + Desktop recording possible."
+			echo "          + Sound recording possible."
+			echo "          + Camera overlay possible."
 		fi
 	fi
 
 	#### 4.) Check Linux
-	if [ "${uname}" = "Linux" ]; then
-		if ! ffmpeg 2>&1 | $GREP '\-\-enable-x11grab' > /dev/null 2>&1; then
-			echo "Linux: x11grab not available in ffmpeg"
-			return 1
-		elif [ "${1}" = "verbose" ]; then
-			echo "[OK] Linux: x11grab available in ffmpeg"
+	if [ "${UNAME}" = "Linux" ]; then
+		if ! can_use_ffmpeg; then
+			echo "[ERR]  [Linux]: x11grab not available in ffmpeg"
+		else
+			echo "[OK]   [Linux]: x11grab available in ffmpeg"
 		fi
 
-		if ! command -v v4l2-ctl > /dev/null 2>&1; then
-			echo "Linux: v4l2-ctl not found."
+		if ! can_screen_record; then
+			echo "[ERR]  [Linux]: xdpyinfo not found."
+			echo "          - Desktop recording not possible."
 			echo
-			echo "Debian: apt-get install v4l-utils"
-			echo "CentOS: yum install v4l-utils"
-			echo "Arch:   pacman -S v4l-utils"
-			return 1
-		elif [ "${1}" = "verbose" ]; then
-			echo "[OK] Linux: v4l2-ctl found: $(which v4l2-ctl)"
+			echo "       Debian: apt-get install x11-utils"
+			echo "       CentOS: yum install xorg-x11-utils"
+			echo "       Arch:   pacman -S xorg-xdpyinfo"
+		else
+			echo "[OK]   [Linux]: xdpyinfo found: $(which xdpyinfo)"
+			echo "          + Desktop recording possible."
 		fi
 
-		if ! command -v arecord > /dev/null 2>&1; then
-			echo "Linux: arecord not found."
+		if ! can_audio_record; then
+			echo "[WARN] [Linux]: arecord not found."
+			echo "          - Sound recording not possible."
 			echo
-			echo "Debian: apt-get install alsa-utils"
-			echo "CentOS: yum install alsa-utils"
-			echo "Arch:   pacman -S alsa-utils"
-			return 1
-		elif [ "${1}" = "verbose" ]; then
-			echo "[OK] Linux: arecord found: $(which arecord)"
+			echo "       Debian: apt-get install alsa-utils"
+			echo "       CentOS: yum install alsa-utils"
+			echo "       Arch:   pacman -S alsa-utils"
+		else
+			echo "[OK]   [Linux]: arecord found: $(which arecord)"
+			echo "          + Sound recording possible."
 		fi
 
-		if ! command -v xdpyinfo > /dev/null 2>&1; then
-			echo "Linux: xdpyinfo not found."
+		if ! can_camera_record; then
+			echo "[WARN] [Linux]: v4l2-ctl not found."
+			echo "          - Camera overlay not possible."
 			echo
-			echo "Debian: apt-get install x11-utils"
-			echo "CentOS: yum install xorg-x11-utils"
-			echo "Arch:   pacman -S xorg-xdpyinfo"
-			return 1
-		elif [ "${1}" = "verbose" ]; then
-			echo "[OK] Linux: xdpyinfo found: $(which xdpyinfo)"
+			echo "       Debian: apt-get install v4l-utils"
+			echo "       CentOS: yum install v4l-utils"
+			echo "       Arch:   pacman -S v4l-utils"
+		else
+			echo "[OK]   [Linux]: v4l2-ctl found: $(which v4l2-ctl)"
+			echo "          + Camera overlay possible."
+		fi
+
+	fi
+}
+
+
+
+################################################################################
+# Requirements
+################################################################################
+
+can_run_on_os() {
+	if [ "${UNAME}" != "Linux"  ] && [ "${UNAME}" != "Darwin" ]; then
+		# Nope
+		return "${EXIT_ERR}"
+	else
+		# Good :-)
+		return "${EXIT_OK}"
+	fi
+}
+
+can_use_ffmpeg() {
+	if [ "${UNAME}" = "Darwin" ]; then
+		if ! ${FFMPEG} -f avfoundation -list_devices true -i "" 2>&1 | $GREP 'AVFoundation input device' > /dev/null 2>&1; then
+			# Nope, no AVFoundation found in ffmpeg
+			return "${EXIT_ERR}"
+		else
+			# All good :-)
+			return "${EXIT_OK}"
+		fi
+	elif [ "${UNAME}" = "Linux" ]; then
+		if ! ${FFMPEG} -version 2>&1 | $GREP '\-\-enable-x11grab' > /dev/null 2>&1; then
+			# Nope, no x11grab found in ffmpeg
+			return "${EXIT_ERR}"
+		else
+			# All good :-)
+			return "${EXIT_OK}"
 		fi
 	fi
 
-	return 0
+	# Hmm, no supported OS found, not good!
+	return "${EXIT_ERR}"
 }
+
+can_screen_record() {
+	if [ "${UNAME}" = "Darwin" ]; then
+		# Note: this is redundant for OSX
+		if ! can_use_ffmpeg; then
+			return "${EXIT_ERR}"
+		else
+			return "${EXIT_OK}"
+		fi
+	elif [ "${UNAME}" = "Linux" ]; then
+		if ! command -v xdpyinfo > /dev/null 2>&1; then
+			return "${EXIT_ERR}"
+		else
+			return "${EXIT_OK}"
+		fi
+	fi
+
+	# Hmm, no supported OS found, not good!
+	return "${EXIT_ERR}"
+}
+
+can_audio_record() {
+	# TODO: Check if audio devices are available
+
+	if [ "${UNAME}" = "Darwin" ]; then
+		# Note: this is redundant for OSX
+		if ! can_use_ffmpeg; then
+			return "${EXIT_ERR}"
+		else
+			return "${EXIT_OK}"
+		fi
+	elif [ "${UNAME}" = "Linux" ]; then
+		if ! command -v arecord > /dev/null 2>&1; then
+			return "${EXIT_ERR}"
+		else
+			return "${EXIT_OK}"
+		fi
+	fi
+
+	# Hmm, no supported OS found, not good!
+	return "${EXIT_ERR}"
+}
+
+can_camera_record() {
+	# TODO: Check if camera devices are available
+
+	if [ "${UNAME}" = "Darwin" ]; then
+		# Note: this is redundant for OSX
+		if ! can_use_ffmpeg; then
+			return "${EXIT_ERR}"
+		else
+			return "${EXIT_OK}"
+		fi
+	elif [ "${UNAME}" = "Linux" ]; then
+		if ! command -v v4l2-ctl > /dev/null 2>&1; then
+			return "${EXIT_ERR}"
+		else
+			return "${EXIT_OK}"
+		fi
+	fi
+
+	# Hmm, no supported OS found, not good!
+	return "${EXIT_ERR}"
+}
+
+
 
 
 
@@ -514,70 +687,39 @@ get_camera_framerate() {
 }
 
 
+
+
 ################################################################################
+#
 # MAIN ENTRY POINT
+#
 ################################################################################
 
-########################################
-# 1.) Default options
-########################################
 
-#### Input options
-#### ------------------------------
-
-# Enable screen recording by default
-screen=yes
-sargs=""
-
-camera=no
-cargs=""
-
-audio=no
-aargs="-ac 2"
-
-
-#### Output options
-#### ------------------------------
-
-# Set default video container extension
-ext="mkv"
-
-# Audio codec
-audio_codec="libfaac"
-#audio_codec="pcm_s16le"
-
-
-# Video codec
-video_codec="libx264"
-
-# Custom ffmpeg arguments
-oargs="-crf 0 -preset ultrafast"
-#args="-qp 0 -preset ultrafast"
-
-
-########################################
-# 2.) Evaluate cmd arguments
-########################################
+############################################################
+# 1.) Evaluate cmd arguments
+############################################################
 
 while [ $# -gt 0  ]; do
 	case "$1" in
+
 
 		#### ---- Screen options ----
 
 		# Screen input device
 		-s | -s[0-9]*)
-			screen=yes
-			screen_num="$(echo "$1" | $SED 's/^..//g')"
-			if [ ${#screen_num} -gt 0 ]; then
-				if ! isint "${screen_num}" > /dev/null 2>&1; then
+			RECORD_S="yes"
+			CHOSEN_S_NUM="$(echo "$1" | $SED 's/^..//g')"
+			if [ ${#CHOSEN_S_NUM} -gt 0 ]; then
+				if ! isint "${CHOSEN_S_NUM}" > /dev/null 2>&1; then
 					echo "Invalid screen number for -s"
-					exit -1
+					exit "${EXIT_ERR}"
 				fi
 			fi
 			;;
 		# Screen args
 		--sargs=*)
-			sargs="$(echo "$1" | $SED 's/^--sargs=//g')"
+			S_ARGS="$(echo "$1" | $SED 's/^--sargs=//g')"
 			;;
 
 
@@ -585,18 +727,18 @@ while [ $# -gt 0  ]; do
 
 		# Audio recording
 		-a | -a[0-9]*)
-			audio=yes
-			audio_num="$(echo "$1" | $SED 's/^..//g')"
-			if [ ${#audio_num} -gt 0 ]; then
-				if ! isint "${audio_num}" > /dev/null 2>&1; then
+			RECORD_A="yes"
+			CHOSEN_A_NUM="$(echo "$1" | $SED 's/^..//g')"
+			if [ ${#CHOSEN_A_NUM} -gt 0 ]; then
+				if ! isint "${CHOSEN_A_NUM}" > /dev/null 2>&1; then
 					echo "Invalid audio number for -a"
-					exit -1
+					exit "${EXIT_ERR}"
 				fi
 			fi
 			;;
 		# Audio args
 		--aargs=*)
-			sargs="$(echo "$1" | $SED 's/^--aargs=//g')"
+			A_ARGS="$(echo "$1" | $SED 's/^--aargs=//g')"
 			;;
 
 
@@ -604,62 +746,76 @@ while [ $# -gt 0  ]; do
 
 		# Camera input device
 		-c | -c[0-9]*)
-			camera=yes
-			camera_num="$(echo "$1" | $SED 's/^..//g')"
-			if [ ${#camera_num} -gt 0 ]; then
-				if ! isint "${camera_num}" > /dev/null 2>&1; then
+			RECORD_C="yes"
+			CHOSEN_C_NUM="$(echo "$1" | $SED 's/^..//g')"
+			if [ ${#CHOSEN_C_NUM} -gt 0 ]; then
+				if ! isint "${CHOSEN_C_NUM}" > /dev/null 2>&1; then
 					echo "Invalid camera number for -c"
-					exit -1
+					exit "${EXIT_ERR}"
 				fi
 			fi
 			;;
 		# Camera args
 		--cargs=*)
-			cargs="$(echo "$1" | $SED 's/^--cargs=//g')"
+			C_ARGS="$(echo "$1" | $SED 's/^--cargs=//g')"
 			;;
 
 
 
 		#### ---- Output options ----
-		-e[a-z]*)
-			ext="$(echo "$1" | $SED 's/^..//g')"
-			;;
 
 		--oargs=*)
-			oargs="$(echo "$1" | $SED 's/^--oargs=//g')"
+			O_ARGS="$(echo "$1" | $SED 's/^--oargs=//g')"
 			;;
+
+		-e[a-z]*)
+			OUTPUT_EXT="$(echo "$1" | $SED 's/^..//g')"
+			;;
+
+
+
+		#### ---- Display information options ----
+
+		--help)
+			print_help
+			exit "${EXIT_OK}"
+			;;
+		--version)
+			print_version
+			exit "${EXIT_OK}"
+			;;
+		--test)
+			print_requirements
+			exit "${EXIT_OK}"
+			;;
+
+		#### ---- List devices ----
+
+		--list)
+			LIST_ALL_DEVS="yes"
+			;;
+		--slist)
+			LIST_SCREEN_DEVS="yes"
+			;;
+		--alist)
+			LIST_AUDIO_DEVS="yes"
+			;;
+		--clist)
+			LIST_CAMERA_DEVS="yes"
+			;;
+
 
 
 		#### ---- Misc options ----
 
 		--dry)
-			l_dry=yes
+			l_dry="yes"
 			;;
-		--list)
-			l_list=yes
-			;;
-		--slist)
-			l_slist=yes
-			;;
-		--alist)
-			l_alist=yes
-			;;
-		--clist)
-			l_clist=yes
-			;;
-		--help)
-			l_help=yes
-			;;
-		--version)
-			l_version=yes
-			;;
-		--test)
-			l_test=yes
-			;;
+
 		*)
 			echo "Invalid argument: '${1}'"
 			echo "Type '${0} --help' for available options."
-			exit 1
+			exit "${EXIT_ERR}"
 			;;
 	esac
 	shift
@@ -667,40 +823,97 @@ done
 
 
 
-########################################
-# 3.) Help/Version/Test
-########################################
-if [ "${l_help}" = "yes" ]; then
-	usage
-	exit 0
+############################################################
+# 2.) Check requirements
+############################################################
+
+# Check general requirements
+if ! command -v ffmpeg > /dev/null 2>&1; then
+		echo "FFmpeg not found. Test requirements with:"
+	echo "${INFO_NAME} --test"
+	exit "${EXIT_ERR}"
 fi
-if [ "${l_version}" = "yes" ]; then
-	version
-	exit 0
+if ! can_run_on_os; then
+	echo "Operating system not supported. Test requirements with:"
+	echo "${INFO_NAME} --test"
+	exit "${EXIT_ERR}"
 fi
-if [ "${l_test}" = "yes" ]; then
-	if ! check_requirements "verbose"; then
-		exit -1
-	else
-		exit 0
+if ! can_use_ffmpeg; then
+	echo "FFmpeg does not meet requirements. Test requirements with:"
+	echo "${INFO_NAME} --test"
+	exit "${EXIT_ERR}"
+fi
+
+# Check 'selected recordings' requirements
+if [ "${RECORD_S}" = "yes" ]; then
+	if ! can_screen_record; then
+		echo "Cannot screen record. Test requirements with:"
+		echo "${INFO_NAME} --test"
+		exit "${EXIT_ERR}"
+	fi
+fi
+if [ "${RECORD_A}" = "yes" ]; then
+	if ! can_audio_record; then
+		echo "Cannot audio record. Test requirements with:"
+		echo "${INFO_NAME} --test"
+		exit "${EXIT_ERR}"
+	fi
+fi
+if [ "${RECORD_C}" = "yes" ]; then
+	if ! can_camera_record; then
+		echo "Cannot camera record. Test requirements with:"
+		echo "${INFO_NAME} --test"
+		exit "${EXIT_ERR}"
+	fi
+fi
+
+# Check 'list devices' requirements
+if [ "${LIST_SCREEN_DEVS}" = "yes" ]; then
+	if ! can_screen_record; then
+		echo "Cannot list screen devices. Test requirements with:"
+		echo "${INFO_NAME} --test"
+		exit "${EXIT_ERR}"
+	fi
+fi
+if [ "${LIST_AUDIO_DEVS}" = "yes" ]; then
+	if ! can_audio_record; then
+		echo "Cannot list audio devices. Test requirements with:"
+		echo "${INFO_NAME} --test"
+		exit "${EXIT_ERR}"
+	fi
+fi
+if [ "${LIST_CAMERA_DEVS}" = "yes" ]; then
+	if ! can_camera_record; then
+		echo "Cannot list camera devices. Test requirements with:"
+		echo "${INFO_NAME} --test"
+		exit "${EXIT_ERR}"
+	fi
+fi
+if [ "${LIST_ALL_DEVS}" = "yes" ]; then
+	if ! can_screen_record; then
+		echo "Cannot list screen devices. Test requirements with:"
+		echo "${INFO_NAME} --test"
+		exit "${EXIT_ERR}"
+	fi
+	if ! can_camera_record; then
+		echo "Cannot list camera devices. Test requirements with:"
+		echo "${INFO_NAME} --test"
+		exit "${EXIT_ERR}"
+	fi
+	if ! can_camera_record; then
+		echo "Cannot list camera devices. Test requirements with:"
+		echo "${INFO_NAME} --test"
+		exit "${EXIT_ERR}"
 	fi
 fi
 
 
-########################################
-# 4.) Check requirements
-########################################
 
-if ! check_requirements; then
-	exit -1
-fi
+############################################################
+# 3.) Evaluate List options
+############################################################
 
-
-########################################
-# 5.) List options
-########################################
-
-if [ "${l_list}" = "yes" ]; then
+if [ "${LIST_ALL_DEVS}" = "yes" ]; then
 	echo "Available screen recording devices (monitors):"
 	echo
 	get_screen_device_names "${l_dry}"
@@ -719,19 +932,19 @@ if [ "${l_list}" = "yes" ]; then
 	exit 0
 fi
 
-if [ "${l_slist}" = "yes" ]; then
+if [ "${LIST_SCREEN_DEVS}" = "yes" ]; then
 	echo "Available screen recording devices (monitors):"
 	echo
 	get_screen_device_names "${l_dry}"
 	exit 0
 fi
-if [ "${l_alist}" = "yes" ]; then
+if [ "${LIST_AUDIO_DEVS}" = "yes" ]; then
 	echo "Available audio recording devices (microphones):"
 	echo
 	get_audio_device_names "${l_dry}"
 	exit 0
 fi
-if [ "${l_clist}" = "yes" ]; then
+if [ "${LIST_CAMERA_DEVS}" = "yes" ]; then
 	echo "Available camera recording devices:"
 	echo
 	get_camera_device_names "${l_dry}"
@@ -740,20 +953,21 @@ fi
 
 
 
-########################################
-# 6.) Build ffmpeg options
-########################################
+
+############################################################
+# 4.) Build ffmpeg options
+############################################################
 
 # Does the user want screen recording?
-if [ ! -z "${screen+x}" ] && [ "${screen}" = "yes" ]; then
+if [ "${RECORD_S}" = "yes" ]; then
 
 	# If screen device was set via argument list, validate it
-	if [ ${#screen_num} -gt 0 ]; then
-		if ! screen_device_exists "$screen_num"; then
-			echo "Screen recording device: '${screen_num}' does not exist."
+	if [ ${#CHOSEN_S_NUM} -gt 0 ]; then
+		if ! screen_device_exists "$CHOSEN_S_NUM"; then
+			echo "Screen recording device: '${CHOSEN_S_NUM}' does not exist."
 			exit -1
 		fi
-		screen_device="$screen_num"
+		screen_device="$CHOSEN_S_NUM"
 
 	# If screen device was not set via argument list, choose one
 	else
@@ -768,15 +982,15 @@ if [ ! -z "${screen+x}" ] && [ "${screen}" = "yes" ]; then
 fi
 
 # Does the user want audio recording?
-if [ ! -z "${audio+x}" ] && [ "${audio}" = "yes" ]; then
+if [ "${RECORD_A}" = "yes" ]; then
 
 	# If screen device was set via argument list, validate it
-	if [ ${#audio_num} -gt 0 ]; then
-		if ! audio_device_exists "$audio_num"; then
-			echo "Audio recording device: '${audio_num}' does not exist."
+	if [ ${#CHOSEN_A_NUM} -gt 0 ]; then
+		if ! audio_device_exists "$CHOSEN_A_NUM"; then
+			echo "Audio recording device: '${CHOSEN_A_NUM}' does not exist."
 			exit -1
 		fi
-		audio_device="$audio_num"
+		audio_device="$CHOSEN_A_NUM"
 
 	# If audio device was not set via argument list, choose one
 	else
@@ -791,15 +1005,15 @@ if [ ! -z "${audio+x}" ] && [ "${audio}" = "yes" ]; then
 fi
 
 # Does the user want camera recording?
-if [ ! -z "${camera+x}" ] && [ "${camera}" = "yes" ]; then
+if [ "${RECORD_C}" = "yes" ]; then
 
 	# If camera device was set via argument list, validate it
-	if [ ${#camera_num} -gt 0 ]; then
-		if ! camera_device_exists "$camera_num"; then
-			echo "Camera recording device: '${camera_num}' does not exist."
+	if [ ${#CHOSEN_C_NUM} -gt 0 ]; then
+		if ! camera_device_exists "$CHOSEN_C_NUM"; then
+			echo "Camera recording device: '${CHOSEN_C_NUM}' does not exist."
 			exit -1
 		fi
-		camera_device="$camera_num"
+		camera_device="$CHOSEN_C_NUM"
 
 	# If camera device was not set via argument list, choose one
 	else
@@ -816,9 +1030,9 @@ fi
 
 
 
-########################################
-# 7. Build os-specific ffmpeg cmd
-########################################
+############################################################
+# 5. Build os-specific ffmpeg cmd
+############################################################
 
 
 # Get screen resolution of selected monitor
@@ -827,37 +1041,37 @@ screen_resolution="$(get_screen_resolution "${screen_device}")"
 
 # Get camera resolution/framerate of selected camera
 # TODO: Currently only works for OSX
-if [ ! -z "${camera+x}" ] && [ "${camera}" = "yes" ]; then
+if [ "${RECORD_C}" = "yes" ]; then
 	camera_resolution="$(get_default_camera_resolution "${camera_device}")"
 	camera_framerate="$(get_camera_framerate "${camera_device}" "${camera_resolution}")"
 fi
 
 
 
-if [ "$(uname)" = "Darwin" ]; then
+if [ "${UNAME}" = "Darwin" ]; then
 
 	FF_INPUT_FRAMEWORK_SCREEN="avfoundation"
 	FF_INPUT_FRAMEWORK_SOUND="avfoundation"
 	FF_INPUT_FRAMEWORK_CAMERA="avfoundation"
 
 	# Get ffmpeg audio command (if audio was selected)
-	if [ ! -z "${audio+x}" ] && [ "${audio}" = "yes" ]; then
+	if [ "${RECORD_A}" = "yes" ]; then
 		audio_device=":${audio_device}"
 	fi
 
-	if [ ! -z "${camera+x}" ] && [ "${camera}" = "yes" ]; then
+	if [ "${RECORD_C}" = "yes" ]; then
 		camera_fix="-video_size ${camera_resolution} -framerate ${camera_framerate}"
 	fi
 
 
-elif [ "$(uname)" = "Linux" ]; then
+elif [ "${UNAME}" = "Linux" ]; then
 
 	FF_INPUT_FRAMEWORK_SCREEN="x11grab"
 	FF_INPUT_FRAMEWORK_SOUND="alsa"		# TODO: what about pulse??
 	FF_INPUT_FRAMEWORK_CAMERA="v4l2"
 
 	# Get ffmpeg audio command (if audio was selected)
-	if [ ! -z "${audio+x}" ] && [ "${audio}" = "yes" ]; then
+	if [ "${RECORD_A}" = "yes" ]; then
 		audio_name="$(get_audio_device_names | $GREP "\[${audio_device}\]")"
 		# ShellCheck does not recognize awk, as we are using it in a variable
 		# shellcheck disable=SC2016
@@ -869,7 +1083,7 @@ elif [ "$(uname)" = "Linux" ]; then
 	fi
 
 	# Get camera device
-	if [ ! -z "${camera+x}" ] && [ "${camera}" = "yes" ]; then
+	if [ "${RECORD_C}" = "yes" ]; then
 		camera_device="$(get_camera_device_names | $GREP "\[${camera_device}\]" | $GREP -oE '/dev/video[0-9]*')"
 		camera_fix=""
 	fi
@@ -880,7 +1094,7 @@ fi
 
 
 
-FFMPEG="ffmpeg"
+#FFMPEG="ffmpeg"
 FFMPEG="${FFMPEG} -hide_banner -loglevel info"
 
 # Video Options
@@ -888,34 +1102,34 @@ FFMPEG="${FFMPEG} -thread_queue_size 512"
 
 # If we are able to get the screen resolution, use it
 if [ "$screen_resolution" != "" ]; then
-	FFMPEG="${FFMPEG} -f ${FF_INPUT_FRAMEWORK_SCREEN} -video_size ${screen_resolution} ${sargs} -i \"${screen_device}\""
+	FFMPEG="${FFMPEG} -f ${FF_INPUT_FRAMEWORK_SCREEN} -video_size ${screen_resolution} ${S_ARGS} -i \"${screen_device}\""
 else
-	FFMPEG="${FFMPEG} -f ${FF_INPUT_FRAMEWORK_SCREEN} ${sargs} -i \"${screen_device}\""
+	FFMPEG="${FFMPEG} -f ${FF_INPUT_FRAMEWORK_SCREEN} ${S_ARGS} -i \"${screen_device}\""
 fi
 
 # Camera Options (1/2)
-if [ ! -z "${camera+x}" ] && [ "${camera}" = "yes" ]; then
+if [ "${RECORD_C}" = "yes" ]; then
 	FFMPEG="${FFMPEG} -thread_queue_size 512"
-	FFMPEG="${FFMPEG} -f ${FF_INPUT_FRAMEWORK_CAMERA} ${camera_fix} ${cargs} -i \"${camera_device}\""
+	FFMPEG="${FFMPEG} -f ${FF_INPUT_FRAMEWORK_CAMERA} ${camera_fix} ${C_ARGS} -i \"${camera_device}\""
 fi
 
 # Sound Options
-if [ ! -z "${audio+x}" ] && [ "${audio}" = "yes" ]; then
+if [ "${RECORD_A}" = "yes" ]; then
 	FFMPEG="${FFMPEG} -thread_queue_size 512"
-	FFMPEG="${FFMPEG} -f ${FF_INPUT_FRAMEWORK_SOUND} ${aargs} -i \"${audio_device}\""
-	FFMPEG="${FFMPEG} -c:a ${audio_codec}"
+	FFMPEG="${FFMPEG} -f ${FF_INPUT_FRAMEWORK_SOUND} ${A_ARGS} -i \"${audio_device}\""
+	FFMPEG="${FFMPEG} -c:a ${OUTPUT_ACODEC}"
 fi
 
-FFMPEG="${FFMPEG} -c:v ${video_codec}"
-FFMPEG="${FFMPEG} ${oargs}"
+FFMPEG="${FFMPEG} -c:v ${OUTPUT_VCODEC}"
+FFMPEG="${FFMPEG} ${O_ARGS}"
 
 # Camera Options (2/2)
-if [ ! -z "${camera+x}" ] && [ "${camera}" = "yes" ]; then
+if [ "${RECORD_C}" = "yes" ]; then
 	FFMPEG="${FFMPEG} -filter_complex 'overlay=main_w-overlay_w-10:main_h-overlay_h-10'"
 fi
 
 FFMPEG="${FFMPEG} -threads 0"
-FFMPEG="${FFMPEG} \"${DIR}/${NAME}.${ext}\""
+FFMPEG="${FFMPEG} \"${DIR}/${NAME}.${OUTPUT_EXT}\""
 
 
 #### RUN

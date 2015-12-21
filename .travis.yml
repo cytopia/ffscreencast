@@ -8,4 +8,5 @@ before_script:
 
 script:
   - shellcheck --shell=bash ffscreencast
+  - mdl -c .mdlrc README.md
 
