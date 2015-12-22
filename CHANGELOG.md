@@ -4,7 +4,8 @@ CHANGELOG
 Version 0.7 (unreleased)
 -----------
 
-- none yet
+- [Enh] Added config file in ~/.config/ffscreencast/ffscreencastrc
+- [Enh] Faster bootstrap with cache variables
 
 
 Version 0.6

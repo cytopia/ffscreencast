@@ -19,7 +19,7 @@
 
 Besides that `ffscreencast` can act as an ffmpeg command generator. Every available option can also just show the corresponding ffmpeg command instead of executing it. Non-ffmpeg commands, such as how the camera resolution is pulled and others can also be shown instead of being executed.
 
-![Screencast](https://raw.githubusercontent.com/cytopia/ffscreencast/master/img/ffscreencast.png)
+![Screencast](https://raw.githubusercontent.com/cytopia/ffscreencast/master/doc/img/ffscreencast.png)
 
 **Supported platforms**
 
@@ -40,6 +40,7 @@ Besides that `ffscreencast` can act as an ffmpeg command generator. Every availa
 
 ## 1. Features
 
+* Config file for default configuration
 * Screen recording
 * Camera overlay
 * Audio support
@@ -189,8 +190,8 @@ ffmpeg -hide_banner -loglevel info -f avfoundation   -i "1" -f avfoundation  -i 
 
 Showing screen recording with and without camera overlay.
 
-![Screencast](https://raw.githubusercontent.com/cytopia/ffscreencast/master/img/ffscreencast.png)
-![Screencast](https://raw.githubusercontent.com/cytopia/ffscreencast/master/img/ffscreencast2.png)
+![Screencast](https://raw.githubusercontent.com/cytopia/ffscreencast/master/doc/img/ffscreencast.png)
+![Screencast](https://raw.githubusercontent.com/cytopia/ffscreencast/master/doc/img/ffscreencast2.png)
 
 ## 4. Todo
 

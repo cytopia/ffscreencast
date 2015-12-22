@@ -17,9 +17,9 @@
 
 INFO_AUTHOR="Patrick Plocke <patrick@plocke.de>"
 INFO_GPGKEY="0x28BF179F"
-INFO_DATE="2015-12-21"
+INFO_DATE="2015-12-22"
 INFO_LICENSE="MIT"
-INFO_VERSION="0.6"
+INFO_VERSION="0.7-beta"
 INFO_NAME="ffscreencast"
 
 
@@ -136,6 +136,73 @@ EXIT_OK="0"
 isint() {
 	printf '%d' "$1" >/dev/null 2>&1 && return 0 || return 1;
 }
+
+################################################################################
+# Config
+################################################################################
+
+write_config() {
+
+	local dir
+	local conf
+	dir="${HOME}/.config/ffscreencast"
+	conf="${dir}/ffscreencastrc"
+
+	if [ ! -f "${conf}" ]; then
+		if [ ! -d "${dir}" ]; then
+			$(which mkdir) -p "${dir}"
+		fi
+
+		echo "# ~/.config/ffscreencast/ffscreencastrc" > "${conf}"
+		echo >> "${conf}"
+
+		echo "# Default video container extension" >> "${conf}"
+		echo "# Alternatively: 'mp4' or 'avi'" >> "${conf}"
+		echo "OUTPUT_EXT=\"mkv\"" >> "${conf}"
+		echo >> "${conf}"
+
+		echo "# Default audio output codec" >> "${conf}"
+		echo "# Alternatively: 'pcm_s16le'" >> "${conf}"
+		echo "OUTPUT_ACODEC=\"libfaac\"" >> "${conf}"
+		echo >> "${conf}"
+
+		echo "# Default video output codec" >> "${conf}"
+		echo "# Alternatively: 'libx265'" >> "${conf}"
+		echo "OUTPUT_VCODEC=\"libx264\"" >> "${conf}"
+		echo >> "${conf}"
+
+
+		echo "# Default Screen recording arguments" >> "${conf}"
+		echo "S_ARGS=\"\"" >> "${conf}"
+		echo >> "${conf}"
+
+		echo "# Default audio recording arguments" >> "${conf}"
+		echo "A_ARGS=\"-ac 2\"" >> "${conf}"
+		echo >> "${conf}"
+
+		echo "# Default camera recording arguments" >> "${conf}"
+		echo "C_ARGS=\"\"" >> "${conf}"
+		echo >> "${conf}"
+
+		echo "# Default misc output arguments" >> "${conf}"
+		echo "O_ARGS=\"-crf 0 -preset ultrafast\"" >> "${conf}"
+		echo >> "${conf}"
+
+		echo "# Default recording behavior" >> "${conf}"
+		echo "RECORD_S=\"yes\"" >> "${conf}"
+		echo "RECORD_A=\"no\"" >> "${conf}"
+		echo "RECORD_C=\"no\"" >> "${conf}"
+		echo >> "${conf}"
+
+		echo "# What listed device number has been chosen to record?" >> "${conf}"
+		echo "CHOSEN_S_NUM=\"\"" >> "${conf}"
+		echo "CHOSEN_A_NUM=\"\"" >> "${conf}"
+		echo "CHOSEN_C_NUM=\"\"" >> "${conf}"
+		echo >> "${conf}"
+	fi
+
+}
+
 
 
 ################################################################################
@@ -323,38 +390,50 @@ print_requirements() {
 ################################################################################
 # Requirements
 ################################################################################
-
+_CACHE_CAN_USE_OS="no"
 can_run_on_os() {
-	if [ "${UNAME}" != "Linux"  ] && [ "${UNAME}" != "Darwin" ]; then
-		# Nope
-		return "${EXIT_ERR}"
-	else
-		# Good :-)
+	if [ "${_CACHE_CAN_USE_OS}" = "yes" ]; then
 		return "${EXIT_OK}"
+	else
+		if [ "${UNAME}" != "Linux"  ] && [ "${UNAME}" != "Darwin" ]; then
+			# Nope
+			return "${EXIT_ERR}"
+		else
+			# Good :-)
+			_CACHE_CAN_USE_OS="yes"
+			return "${EXIT_OK}"
+		fi
 	fi
 }
 
+_CACHE_CAN_USE_FFMPEG="no"
 can_use_ffmpeg() {
-	if [ "${UNAME}" = "Darwin" ]; then
-		if ! ${FFMPEG} -f avfoundation -list_devices true -i "" 2>&1 | $GREP 'AVFoundation input device' > /dev/null 2>&1; then
-			# Nope, no AVFoundation found in ffmpeg
-			return "${EXIT_ERR}"
-		else
-			# All good :-)
-			return "${EXIT_OK}"
+	if [ "${_CACHE_CAN_USE_FFMPEG}" = "yes" ]; then
+		return "${EXIT_OK}"
+	else
+		if [ "${UNAME}" = "Darwin" ]; then
+			if ! ${FFMPEG} -f avfoundation -list_devices true -i "" 2>&1 | $GREP 'AVFoundation input device' > /dev/null 2>&1; then
+				# Nope, no AVFoundation found in ffmpeg
+				return "${EXIT_ERR}"
+			else
+				# All good :-)
+				_CACHE_CAN_USE_FFMPEG="yes"
+				return "${EXIT_OK}"
+			fi
+		elif [ "${UNAME}" = "Linux" ]; then
+			if ! ${FFMPEG} -version 2>&1 | $GREP '\-\-enable-x11grab' > /dev/null 2>&1; then
+				# Nope, no x11grab found in ffmpeg
+				return "${EXIT_ERR}"
+			else
+				# All good :-)
+				_CACHE_CAN_USE_FFMPEG="yes"
+				return "${EXIT_OK}"
+			fi
 		fi
-	elif [ "${UNAME}" = "Linux" ]; then
-		if ! ${FFMPEG} -version 2>&1 | $GREP '\-\-enable-x11grab' > /dev/null 2>&1; then
-			# Nope, no x11grab found in ffmpeg
-			return "${EXIT_ERR}"
-		else
-			# All good :-)
-			return "${EXIT_OK}"
-		fi
-	fi
 
-	# Hmm, no supported OS found, not good!
-	return "${EXIT_ERR}"
+		# Hmm, no supported OS found, not good!
+		return "${EXIT_ERR}"
+	fi
 }
 
 can_screen_record() {
@@ -695,6 +774,14 @@ get_camera_framerate() {
 #
 ################################################################################
 
+
+if [ ! -f "${HOME}/.config/ffscreencast/ffscreencastrc" ]; then
+	# Write default config if it does not exist
+	write_config
+else
+	# If there is a config, source it as default
+	. "${HOME}/.config/ffscreencast/ffscreencastrc"
+fi
 
 ############################################################
 # 1.) Evaluate cmd arguments

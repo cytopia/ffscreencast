@@ -1,0 +1,36 @@
+# ~/.config/ffscreencast/ffscreencastrc
+
+# Default video container extension
+# Alternatively: 'mp4' or 'avi'
+OUTPUT_EXT="mp4"
+
+# Default audio output codec
+# Alternatively: 'pcm_s16le'
+OUTPUT_ACODEC="libfaac"
+
+# Default video output codec
+# Alternatively: 'libx265'
+OUTPUT_VCODEC="libx264"
+
+# Default Screen recording arguments
+S_ARGS=""
+
+# Default audio recording arguments
+A_ARGS="-ac 2"
+
+# Default camera recording arguments
+C_ARGS=""
+
+# Default misc output arguments
+O_ARGS="-crf 0 -preset ultrafast"
+
+# Default recording behavior
+RECORD_S="yes"
+RECORD_A="no"
+RECORD_C="no"
+
+# What listed device number has been chosen to record?
+CHOSEN_S_NUM=""
+CHOSEN_A_NUM=""
+CHOSEN_C_NUM=""
+

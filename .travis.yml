@@ -7,6 +7,6 @@ before_script:
   - gem install mdl
 
 script:
-  - shellcheck --shell=bash ffscreencast
+  - shellcheck --shell=bash bin/ffscreencast
   - mdl -c .mdlrc README.md
 
