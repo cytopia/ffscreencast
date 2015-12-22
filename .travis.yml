@@ -3,10 +3,8 @@ language: bash
 before_script:
   - sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ trusty-backports restricted main universe"
   - sudo apt-get update -qq
-  - sudo apt-get install -qq shellcheck rubygems
-  - gem install mdl
+  - sudo apt-get install -qq shellcheck
 
 script:
-  - shellcheck --shell=bash bin/ffscreencast
-  - mdl -c .mdlrc README.md
+  - shellcheck --exclude=SC2129--shell=bash bin/ffscreencast
 
