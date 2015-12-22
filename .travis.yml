@@ -6,5 +6,5 @@ before_script:
   - sudo apt-get install -qq shellcheck
 
 script:
-  - shellcheck --exclude=SC2129--shell=bash bin/ffscreencast
+  - shellcheck --exclude=SC2129 --shell=bash bin/ffscreencast
 
