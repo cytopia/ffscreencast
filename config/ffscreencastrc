@@ -2,7 +2,7 @@
 
 # Default video container extension
 # Alternatively: 'mp4' or 'avi'
-OUTPUT_EXT="mp4"
+OUTPUT_EXT="mkv"
 
 # Default audio output codec
 # Alternatively: 'pcm_s16le'
