@@ -232,7 +232,7 @@ Showing screen recording with and without camera overlay.
 
 This section will be updated whenever questions arise that are worth mentioning here
 
-### 6.1 Gif output
+### Gif output
 
 There is currently no built-in gif support, mainly because it will not produce such a good quality. It is recommended to first create your screencast with the best possible quality and least possible resources (you are obviously going to do something and will not want to consume all your cpu for the encoding) and afterwards convert it to a high quality gif.
 
@@ -245,6 +245,23 @@ This is best done in a two-way encoding:
 
 I have thrown together a small script, that will do that for you and is even capable of resizing the video. Head over to my **[Thunar Custom Actions](https://github.com/cytopia/thunar-custom-actions)** and look for `thunar-video-to-gif.sh`. This script is able to work with a gui (`zenity` required) or purely via command line (`-c` option). Both versions work on Linux and OSX.
 
+
+### Mouse cursor capture on OSX
+
+By default `ffmpeg` on OSX (using `AVFoundation`) does not capture the mouse (on Linux it does). You can however pass this as a custom option to `ffscreencast`
+
+In order to capture the mouse pointer itself add the following `--sargs`:
+
+```shell
+ffscreencast --sargs="-capture_cursor 1"
+```
+
+If you also want to *see* when you actually click the mouse, do it like this:
+```shell
+ffscreencast --sargs="-capture_cursor 1 -capture_mouse_clicks 1"
+```
+
+I will also add this to the FAQ section. Thanks for reporting.
 
 
 ## 7. Contribution
