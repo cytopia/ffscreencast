@@ -5,10 +5,10 @@
 [Usage](https://github.com/cytopia/ffscreencast#3-usage) |
 [Screenshots](https://github.com/cytopia/ffscreencast#4-screenshots) |
 [Todo](https://github.com/cytopia/ffscreencast#5-todo) |
-[Contribution](https://github.com/cytopia/ffscreencast#6-contribution) |
-[License](https://github.com/cytopia/ffscreencast#7-license) |
-[Version](https://github.com/cytopia/ffscreencast#8-version) |
-[Awesome](https://github.com/cytopia/ffscreencast#9-awesome)
+[Contribution](https://github.com/cytopia/ffscreencast#7-contribution) |
+[License](https://github.com/cytopia/ffscreencast#8-license) |
+[Version](https://github.com/cytopia/ffscreencast#9-version) |
+[Awesome](https://github.com/cytopia/ffscreencast#10-awesome)
 
 [![Build Status](https://travis-ci.org/cytopia/ffscreencast.svg?branch=master)](https://travis-ci.org/cytopia/ffscreencast)
 [![Latest Stable Version](https://poser.pugx.org/cytopia/ffscreencast/v/stable)](https://packagist.org/packages/cytopia/ffscreencast) [![Total Downloads](https://poser.pugx.org/cytopia/ffscreencast/downloads)](https://packagist.org/packages/cytopia/ffscreencast) [![Latest Unstable Version](https://poser.pugx.org/cytopia/ffscreencast/v/unstable)](https://packagist.org/packages/cytopia/ffscreencast) [![License](https://poser.pugx.org/cytopia/ffscreencast/license)](http://opensource.org/licenses/MIT)
@@ -227,19 +227,38 @@ Showing screen recording with and without camera overlay.
 * [ ] **General:** Set camera position via cmd
 * [ ] **General:** Be able to record one or multiple screens (monitors)
 
-## 6. Contribution
+## 6. FAQ
+
+This section will be updated whenever questions arise that are worth mentioning here
+
+### 6.1 Gif output
+
+There is currently no built-in gif support, mainly because it will not produce such a good quality. It is recommended to first create your screencast with the best possible quality and least possible resources (you are obviously going to do something and will not want to consume all your cpu for the encoding) and afterwards convert it to a high quality gif.
+
+**How can you create a high quality gif?**
+
+This is best done in a two-way encoding:
+
+1. Extracting the color palette out of the original video
+2. Converting the video to a gif by applying the extracted color palette
+
+I have thrown together a small script, that will do that for you and is even capable of resizing the video. Head over to my **[Thunar Custom Actions](https://github.com/cytopia/thunar-custom-actions)** and look for `thunar-video-to-gif.sh`. This script is able to work with a gui (`zenity` required) or purely via command line (`-c` option). Both versions work on Linux and OSX.
+
+
+
+## 7. Contribution
 
 Contributors are welcome.
 
-## 7. License
+## 8. License
 
 [![license](https://poser.pugx.org/cytopia/ffscreencast/license)](http://opensource.org/licenses/mit)
 
-## 8. Version
+## 9. Version
 
 For a complete list of verion see [CHANGELOG](CHANGELOG.md)
 
-## 9. Awesome
+## 10. Awesome
 
 Added by the following [![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/sindresorhus/awesome) lists:
 
