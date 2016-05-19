@@ -4,8 +4,8 @@
 [Installation](https://github.com/cytopia/ffscreencast#2-installation) |
 [Usage](https://github.com/cytopia/ffscreencast#3-usage) |
 [Screenshots](https://github.com/cytopia/ffscreencast#4-screenshots) |
-[Todo](https://github.com/cytopia/ffscreencast#5-todo) |
-[FAQ](https://github.com/cytopia/ffscreencast#6-faq) |
+[FAQ](https://github.com/cytopia/ffscreencast#5-faq) |
+[Todo](https://github.com/cytopia/ffscreencast#6-todo) |
 [Contribution](https://github.com/cytopia/ffscreencast#7-contribution) |
 [License](https://github.com/cytopia/ffscreencast#8-license) |
 [Version](https://github.com/cytopia/ffscreencast#9-version) |
@@ -210,29 +210,11 @@ Showing screen recording with and without camera overlay.
 ![Screencast](https://raw.githubusercontent.com/cytopia/ffscreencast/master/doc/img/ffscreencast.png)
 ![Screencast](https://raw.githubusercontent.com/cytopia/ffscreencast/master/doc/img/ffscreencast2.png)
 
-## 5. Todo
-
-### 5.1 Bugs
-
-* [ ] **General:** Sound is still behind one second when using camera overlay
-* [X] **OSX:** ~~USB Monitors (see [#1](https://github.com/cytopia/ffscreencast/issues/1))~~
-
-### 5.2 Enhancements
-
-* [ ] **BSD:** Support for [Free]BSD (needs testing)
-* [ ] **Windows:** Support for Windows (via cygwin and dshow)
-* [ ] **Linux:** set sound options via cmd (alsa vs pulse)
-* [ ] **Linux:** Get default resolution/framerate for camera
-* [X] **OSX:** Get default resolution/framerate for camera
-* [X] **General:** ~~Set camera resolution via cmd~~ use `--cargs`
-* [ ] **General:** Set camera position via cmd
-* [ ] **General:** Be able to record one or multiple screens (monitors)
-
-## 6. FAQ
+## 5. FAQ
 
 This section will be updated whenever questions arise that are worth mentioning here
 
-### 6.1 How to output to Gif?
+### 5.1 How to output to Gif?
 
 There is currently no built-in gif support, mainly because it will not produce such a good quality. It is recommended to first create your screencast with the best possible quality and least possible resources (you are obviously going to do something and will not want to consume all your cpu for the encoding) and afterwards convert it to a high quality gif.
 
@@ -246,7 +228,7 @@ This is best done in a two-way encoding:
 I have thrown together a small script, that will do that for you and is even capable of resizing the video. Head over to my **[Thunar Custom Actions](https://github.com/cytopia/thunar-custom-actions)** and look for `thunar-video-to-gif.sh`. This script is able to work with a gui (`zenity` required) or purely via command line (`-c` option). Both versions work on Linux and OSX.
 
 
-### 6.2 How to enable cursor capturing on OSX?
+### 5.2 How to enable cursor capturing on OSX?
 
 By default `ffmpeg` on OSX (using `AVFoundation`) does not capture the mouse (on Linux it does). You can however pass this as a custom option to `ffscreencast`
 
@@ -261,12 +243,41 @@ If you also want to *see* when you actually click the mouse, do it like this:
 ffscreencast --sargs="-capture_cursor 1 -capture_mouse_clicks 1"
 ```
 
-I will also add this to the FAQ section. Thanks for reporting.
 
 
-### 6.3 How to alter the *default* options (config file)?
+### 5.3 How to hide the cursor on Linux/BSD?
+
+By default `ffmpeg` on Linux/BSD (using `x11grab`) does show the mouse pointer by default (OSX does not). You can however pass this as a custom option to `ffscreencast` in order to hide the mouse pointer:
+
+
+```shell
+ffscreencast --sargs="-draw_mouse 0"
+```
+
+
+
+### 5.4 How to alter the *default* options (config file)?
 
 When you run `ffscreencast` for the first time, it will create a configuration file in `~/.config/ffscreencast/ffscreencastrc`. Everything specified in this file will be applied when you run `ffscreencast` without any arguments. So if you have your own nice defaults you always need to enter, you can simply add them to the config file. 
+
+## 6. Todo
+
+### 6.1 Bugs
+
+* [ ] **General:** Sound is still behind one second when using camera overlay
+* [X] **OSX:** ~~USB Monitors (see [#1](https://github.com/cytopia/ffscreencast/issues/1))~~
+
+### 6.2 Enhancements
+
+* [ ] **BSD:** Support for [Free]BSD (needs testing)
+* [ ] **Windows:** Support for Windows (via cygwin and dshow)
+* [ ] **Linux:** set sound options via cmd (alsa vs pulse)
+* [ ] **Linux:** Get default resolution/framerate for camera
+* [X] **OSX:** Get default resolution/framerate for camera
+* [X] **General:** ~~Set camera resolution via cmd~~ use `--cargs`
+* [ ] **General:** Set camera position via cmd
+* [ ] **General:** Be able to record one or multiple screens (monitors)
+
 
 
 ## 7. Contribution
