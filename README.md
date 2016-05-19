@@ -5,6 +5,7 @@
 [Usage](https://github.com/cytopia/ffscreencast#3-usage) |
 [Screenshots](https://github.com/cytopia/ffscreencast#4-screenshots) |
 [Todo](https://github.com/cytopia/ffscreencast#5-todo) |
+[FAQ](https://github.com/cytopia/ffscreencast#6-faq) |
 [Contribution](https://github.com/cytopia/ffscreencast#7-contribution) |
 [License](https://github.com/cytopia/ffscreencast#8-license) |
 [Version](https://github.com/cytopia/ffscreencast#9-version) |
