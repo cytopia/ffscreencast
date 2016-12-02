@@ -1,13 +1,15 @@
 # ffscreencast
 
 [Features](https://github.com/cytopia/ffscreencast#1-features) |
-[Usage](https://github.com/cytopia/ffscreencast#2-usage) |
-[Screenshots](https://github.com/cytopia/ffscreencast#3-screenshots) |
-[Todo](https://github.com/cytopia/ffscreencast#4-todo) |
-[Contribution](https://github.com/cytopia/ffscreencast#5-contribution) |
-[License](https://github.com/cytopia/ffscreencast#6-license) |
-[Version](https://github.com/cytopia/ffscreencast#7-version) |
-[Awesome](https://github.com/cytopia/ffscreencast#8-awesome)
+[Installation](https://github.com/cytopia/ffscreencast#2-installation) |
+[Usage](https://github.com/cytopia/ffscreencast#3-usage) |
+[Screenshots](https://github.com/cytopia/ffscreencast#4-screenshots) |
+[FAQ](https://github.com/cytopia/ffscreencast#5-faq) |
+[Todo](https://github.com/cytopia/ffscreencast#6-todo) |
+[Contribution](https://github.com/cytopia/ffscreencast#7-contribution) |
+[License](https://github.com/cytopia/ffscreencast#8-license) |
+[Version](https://github.com/cytopia/ffscreencast#9-version) |
+[Awesome](https://github.com/cytopia/ffscreencast#10-awesome)
 
 [![Build Status](https://travis-ci.org/cytopia/ffscreencast.svg?branch=master)](https://travis-ci.org/cytopia/ffscreencast)
 [![Latest Stable Version](https://poser.pugx.org/cytopia/ffscreencast/v/stable)](https://packagist.org/packages/cytopia/ffscreencast) [![Total Downloads](https://poser.pugx.org/cytopia/ffscreencast/downloads)](https://packagist.org/packages/cytopia/ffscreencast) [![Latest Unstable Version](https://poser.pugx.org/cytopia/ffscreencast/v/unstable)](https://packagist.org/packages/cytopia/ffscreencast) [![License](https://poser.pugx.org/cytopia/ffscreencast/license)](http://opensource.org/licenses/MIT)
@@ -49,9 +51,24 @@ Besides that `ffscreencast` can act as an ffmpeg command generator. Every availa
 * Allows to manually (parameter) or interactively choose sound device
 * ffmpeg command generation
 
-## 2. Usage
+## 2. Installation
 
-### 2.1 Overview
+### 2.1 OSX
+
+```shell
+brew install cytopia/tap/ffscreencast
+```
+
+### 2.2 Linux/BSD
+```shell
+git clone https://github.com/cytopia/ffscreencast
+cd ffscreencast
+sudo cp bin/ffscreencast /usr/local/bin
+```
+
+## 3. Usage
+
+### 3.1 Overview
 
 To simply start desktop recording your screen call the program without any arguments `ffscreencast` and it will use the default screen without camera overlay and without sound.
 
@@ -131,7 +148,7 @@ System information:
 
 The `num` (device numbers) can be omitted. If there is only one device of its type available, `ffscreencast` will automatically default to this device, otherwise it will ask interactively which device to use for recording.
 
-### 2.2 Examples
+### 3.2 Examples
 
 Do a screencast on the default screen (without explicitly choosing the monitor)
 
@@ -186,21 +203,71 @@ ffmpeg -hide_banner -loglevel info -f avfoundation   -i "1" -f avfoundation  -i 
 
 ```
 
-## 3. Screenshots
+## 4. Screenshots
 
 Showing screen recording with and without camera overlay.
 
 ![Screencast](https://raw.githubusercontent.com/cytopia/ffscreencast/master/doc/img/ffscreencast.png)
 ![Screencast](https://raw.githubusercontent.com/cytopia/ffscreencast/master/doc/img/ffscreencast2.png)
 
-## 4. Todo
+## 5. FAQ
 
-### 4.1 Bugs
+This section will be updated whenever questions arise that are worth mentioning here
+
+### 5.1 How to output to Gif?
+
+There is currently no built-in gif support, mainly because it will not produce such a good quality. It is recommended to first create your screencast with the best possible quality and least possible resources (you are obviously going to do something and will not want to consume all your cpu for the encoding) and afterwards convert it to a high quality gif.
+
+**How can you create a high quality gif?**
+
+This is best done in a two-way encoding:
+
+1. Extracting the color palette out of the original video
+2. Converting the video to a gif by applying the extracted color palette
+
+I have thrown together a small script, that will do that for you and is even capable of resizing the video. Head over to my **[Thunar Custom Actions](https://github.com/cytopia/thunar-custom-actions)** and look for `thunar-video-to-gif.sh`. This script is able to work with a gui (`zenity` required) or purely via command line (`-c` option). Both versions work on Linux and OSX.
+
+
+### 5.2 How to enable cursor capturing on OSX?
+
+By default `ffmpeg` on OSX (using `AVFoundation`) does not capture the mouse (on Linux it does). You can however pass this as a custom option to `ffscreencast`
+
+In order to capture the mouse pointer itself add the following `--sargs`:
+
+```shell
+ffscreencast --sargs="-capture_cursor 1"
+```
+
+If you also want to *see* when you actually click the mouse, do it like this:
+```shell
+ffscreencast --sargs="-capture_cursor 1 -capture_mouse_clicks 1"
+```
+
+
+
+### 5.3 How to hide the cursor on Linux/BSD?
+
+By default `ffmpeg` on Linux/BSD (using `x11grab`) does show the mouse pointer by default (OSX does not). You can however pass this as a custom option to `ffscreencast` in order to hide the mouse pointer:
+
+
+```shell
+ffscreencast --sargs="-draw_mouse 0"
+```
+
+
+
+### 5.4 How to alter the *default* options (config file)?
+
+When you run `ffscreencast` for the first time, it will create a configuration file in `~/.config/ffscreencast/ffscreencastrc`. Everything specified in this file will be applied when you run `ffscreencast` without any arguments. So if you have your own nice defaults you always need to enter, you can simply add them to the config file. 
+
+## 6. Todo
+
+### 6.1 Bugs
 
 * [ ] **General:** Sound is still behind one second when using camera overlay
 * [X] **OSX:** ~~USB Monitors (see [#1](https://github.com/cytopia/ffscreencast/issues/1))~~
 
-### 4.2 Enhancements
+### 6.2 Enhancements
 
 * [ ] **BSD:** Support for [Free]BSD (needs testing)
 * [ ] **Windows:** Support for Windows (via cygwin and dshow)
@@ -211,19 +278,21 @@ Showing screen recording with and without camera overlay.
 * [ ] **General:** Set camera position via cmd
 * [ ] **General:** Be able to record one or multiple screens (monitors)
 
-## 5. Contribution
+
+
+## 7. Contribution
 
 Contributors are welcome.
 
-## 6. License
+## 8. License
 
 [![license](https://poser.pugx.org/cytopia/ffscreencast/license)](http://opensource.org/licenses/mit)
 
-## 7. Version
+## 9. Version
 
 For a complete list of verion see [CHANGELOG](CHANGELOG.md)
 
-## 8. Awesome
+## 10. Awesome
 
 Added by the following [![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/sindresorhus/awesome) lists:
 
