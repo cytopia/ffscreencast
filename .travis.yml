@@ -8,4 +8,4 @@ before_script:
 script:
   - shellcheck --exclude=SC2129 --shell=bash bin/ffscreencast
   - shellcheck --shell=bash contrib/ffc-to-gif
-  - shellcheck --shell=bash contrib/ffc-to-mpg
+  - shellcheck --shell=bash contrib/ffc-to-mp4
