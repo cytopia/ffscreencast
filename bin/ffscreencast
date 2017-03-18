@@ -421,7 +421,7 @@ can_use_ffmpeg() {
 				return "${EXIT_OK}"
 			fi
 		elif [ "${UNAME}" = "Linux" ]; then
-			if ! ${FFMPEG} -version 2>&1 | $GREP '\-\-enable-x11grabsd' > /dev/null 2>&1 \
+			if ! ${FFMPEG} -version 2>&1 | $GREP '\-\-enable-x11grab' > /dev/null 2>&1 \
 				&& ! ${FFMPEG} -devices 2>&1 | $GREP 'x11grab' > /dev/null 2>&1; then
 				# Nope, no x11grab found in ffmpeg
 				return "${EXIT_ERR}"
