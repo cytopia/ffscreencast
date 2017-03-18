@@ -19,7 +19,7 @@ INFO_AUTHOR="Patrick Plocke <patrick@plocke.de>"
 INFO_GPGKEY="0x28BF179F"
 INFO_DATE="2017-03-18"
 INFO_LICENSE="MIT"
-INFO_VERSION="0.6.3"
+INFO_VERSION="0.6.4"
 INFO_NAME="ffscreencast"
 
 
@@ -421,7 +421,8 @@ can_use_ffmpeg() {
 				return "${EXIT_OK}"
 			fi
 		elif [ "${UNAME}" = "Linux" ]; then
-			if ! ${FFMPEG} -version 2>&1 | $GREP '\-\-enable-x11grab' > /dev/null 2>&1; then
+			if ! ${FFMPEG} -version 2>&1 | $GREP '\-\-enable-x11grab' > /dev/null 2>&1 \
+				&& ! ${FFMPEG} -devices 2>&1 | $GREP 'x11grab' > /dev/null 2>&1; then
 				# Nope, no x11grab found in ffmpeg
 				return "${EXIT_ERR}"
 			else

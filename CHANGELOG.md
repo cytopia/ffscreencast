@@ -5,7 +5,12 @@ Version 0.7 (unreleased)
 -----------
 
 
-Version 0.6.3
+Version 0.6.4
+-------------
+
+- [Fix] Linux: x11grab check for newer and older versions
+
+-Version 0.6.3
 -------------
 
 - [Enh] Video to gif converter (see [contrib](contrib/))
