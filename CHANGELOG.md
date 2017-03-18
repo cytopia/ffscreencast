@@ -4,9 +4,17 @@ CHANGELOG
 Version 0.7 (unreleased)
 -----------
 
+
+Version 0.6.2
+-------------
+
+- [Fix] Fix wording for listing rec devices
+
+Version 0.6.1
+-------------
+
 - [Enh] Added config file in ~/.config/ffscreencast/ffscreencastrc
 - [Enh] Faster bootstrap with cache variables
-
 
 Version 0.6
 -----------
@@ -24,7 +32,7 @@ Version 0.5
 - [Fix] Replaced commands (grep, awk, sed) with full system path to avoid aliases
 
 Version 0.4 (beta)
------------
+------------------
 
 - [Fix] OSX: Get default camera resolution/framerate for recording
 - [Enh] Code comments
@@ -33,14 +41,14 @@ Version 0.4 (beta)
 - [Fix] Fixed broken sound (now only delays about 1 second with cam overlay)
 
 Version 0.3 (beta)
------------
+------------------
 
 - [Enh] Code cleanup
 - [Enh] OSX: Better screen (monitor) information
 - [Enh] Being able to change custom ffmpeg options via cmd argument
 
 Version 0.2 (beta)
------------
+------------------
 
 - Added basic linux support
 - Added version information
@@ -49,7 +57,7 @@ Version 0.2 (beta)
 - [Enh] Performance improvements on wrong commands
 
 Version 0.1 (alpha)
------------
+-------------------
 
 - screencast with video overlay
 
