@@ -1,0 +1,127 @@
+#!/usr/bin/env bash
+
+INFO_NAME="ffc-to-mp4"
+INFO_VERSION="0.1"
+INFO_DATE="2017-03-18"
+
+DRY=0
+
+DEFAULT_WIDTH=1024
+DEFAULT_BR=5000
+
+isint() {
+	printf '%d' "$1" >/dev/null 2>&1 && return 0 || return 1;
+}
+print_usage() {
+	echo "Usage: ${INFO_NAME} -i <infile> [-w <width>] [-b <bitrate>] [--dry] [-o <outfile>.mp4]"
+	echo "       ${INFO_NAME} -h"
+	echo "       ${INFO_NAME} -v"
+	echo
+	echo "Convert video to mp4"
+	echo
+	echo "Required arguments:"
+	echo "  -i <infile>       Input video to convert"
+	echo
+	echo "Optional arguments:"
+	echo "  -w <width>        Scale output video to this width in px. Default: ${DEFAULT_WIDTH}"
+	echo "  -b <bitrate>      Create the output video with this bitrate in kilobytes. Default: ${DEFAULT_BR} (k)"
+	echo "  -o <outfile>.mp4  Output file. Default: <infile>.mp4"
+	echo " --dry              Do not do anything, just show the commands"
+	echo
+	echo "Info:"
+	echo "  -h                Show this help"
+	echo "  -v                Show version information"
+}
+print_version() {
+	echo "${INFO_NAME} v${INFO_VERSION} (${INFO_DATE})"
+}
+
+
+while [ $# -gt 0  ]; do
+	case "$1" in
+		-i)
+			shift
+			if [ ! -f "${1}" ]; then
+				echo "Error, -i: No such input file: ${1}"
+				exit 1
+			fi
+			INFILE="${1}"
+			;;
+		-w)
+			shift
+			if ! isint "${1}"; then
+				echo "Error, -w: Not an integer: ${1}"
+				exit 1
+			fi
+			if [ "${1}" -lt "1" ]; then
+				echo "Error, -w: Must be greater than 0"
+				exit 1
+			fi
+			WIDTH="${1}"
+			;;
+		-b)
+			shift
+			if ! isint "${1}"; then
+				echo "Error, -b: Not an integer: ${1}"
+				exit 1
+			fi
+			if [ "${1}" -lt "1" ]; then
+				echo "Error, -b: Must be greater than 0"
+				exit 1
+			fi
+			BITRATE="${1}"
+			;;
+		-o)
+			shift
+			if [ ! -d "$( dirname "${1}" )" ]; then
+				echo "Error, -o: Base directory does not exist: $( dirname "${1}" )"
+				exit 1
+			fi
+			OUTFILE="${1}"
+			;;
+		--dry)
+			DRY=1
+			;;
+		-h)
+			print_usage
+			exit 0
+			;;
+		-v)
+			print_version
+			exit 0
+			;;
+		*)
+			echo "Invalid argument: '${1}'"
+			echo "Type '${0} -h' for available options."
+			exit 1
+			;;
+	esac
+	shift
+done
+
+
+if [ -z "${INFILE+x}" ]; then
+	echo "Error, -i: is required."
+	echo "Usage: ${INFO_NAME} -h"
+	exit 1
+fi
+
+
+if [ -z "${WIDTH+x}" ]; then
+	WIDTH=${DEFAULT_WIDTH}
+fi
+if [ -z "${BITRATE+x}" ]; then
+	BITRATE=${DEFAULT_BR}
+fi
+if [ -z "${OUTFILE+x}" ]; then
+	OUTFILE="${INFILE}"
+fi
+
+
+CMD_RUN="ffmpeg -i \"${INFILE}\" -an -c:v mpeg4 -b:v ${BITRATE}k -vf scale=${WIDTH}:-1 \"${OUTFILE}.mp4\""
+
+if [ "${DRY}" = "0" ]; then
+	eval "${CMD_RUN}"
+else
+	echo "${CMD_RUN}"
+fi

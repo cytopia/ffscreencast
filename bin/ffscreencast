@@ -19,7 +19,7 @@ INFO_AUTHOR="Patrick Plocke <patrick@plocke.de>"
 INFO_GPGKEY="0x28BF179F"
 INFO_DATE="2017-03-18"
 INFO_LICENSE="MIT"
-INFO_VERSION="0.6.2"
+INFO_VERSION="0.6.3"
 INFO_NAME="ffscreencast"
 
 

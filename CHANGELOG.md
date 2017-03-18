@@ -5,6 +5,13 @@ Version 0.7 (unreleased)
 -----------
 
 
+Version 0.6.3
+-------------
+
+- [Enh] Video to gif converter (see [contrib](contrib/))
+- [Enh] Video to mp4 converter (see [contrib](contrib/))
+
+
 Version 0.6.2
 -------------
 
