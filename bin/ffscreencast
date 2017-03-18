@@ -1007,7 +1007,7 @@ if [ "${LIST_ALL_DEVS}" = "yes" ]; then
 	echo
 	echo
 
-	echo "Available audio recording devices (monitors):"
+	echo "Available audio recording devices (microphones):"
 	echo
 	get_audio_device_names "${l_dry}"
 	echo
