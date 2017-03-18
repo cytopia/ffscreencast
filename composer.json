@@ -12,5 +12,5 @@
 			"role": "Developer"
 		}
 	],
-	"bin": ["bin/ffscreencast"]
+	"bin": ["bin/ffscreencast", "contrib/ffc-to-gif", "contrib/ffc-to-mp4"]
 }

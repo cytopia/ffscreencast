@@ -1,0 +1,134 @@
+#!/usr/bin/env bash
+
+INFO_NAME="ffc-to-gif"
+INFO_VERSION="0.1"
+INFO_DATE="2017-03-18"
+
+DRY=0
+
+DEFAULT_WIDTH=1024
+DEFAULT_FRAMES=10
+
+isint() {
+	printf '%d' "$1" >/dev/null 2>&1 && return 0 || return 1;
+}
+print_usage() {
+	echo "Usage: ${INFO_NAME} -i <infile> [-w <width>] [-f <frames>] [--dry] [-o <outfile>.gif]"
+	echo "       ${INFO_NAME} -h"
+	echo "       ${INFO_NAME} -v"
+	echo
+	echo "Convert video to gif using high-quality 2-pass palette conversion"
+	echo
+	echo "Required arguments:"
+	echo "  -i <infile>       Input video to convert"
+	echo
+	echo "Optional arguments:"
+	echo "  -w <width>        Scale output gif to this width in px. Default: ${DEFAULT_WIDTH}"
+	echo "  -f <frames>       Create the output gif with this framerate. Default: ${DEFAULT_FRAMES}"
+	echo "  -o <outfile>.gif  Output file. Default: <infile>.gif"
+	echo " --dry              Do not do anything, just show the commands"
+	echo
+	echo "Info:"
+	echo "  -h                Show this help"
+	echo "  -v                Show version information"
+}
+print_version() {
+	echo "${INFO_NAME} v${INFO_VERSION} (${INFO_DATE})"
+}
+
+
+while [ $# -gt 0  ]; do
+	case "$1" in
+		-i)
+			shift
+			if [ ! -f "${1}" ]; then
+				echo "Error, -i: No such input file: ${1}"
+				exit 1
+			fi
+			INFILE="${1}"
+			;;
+		-w)
+			shift
+			if ! isint "${1}"; then
+				echo "Error, -w: Not an integer: ${1}"
+				exit 1
+			fi
+			if [ "${1}" -lt "1" ]; then
+				echo "Error, -w: Must be greater than 0"
+				exit 1
+			fi
+			WIDTH="${1}"
+			;;
+		-f)
+			shift
+			if ! isint "${1}"; then
+				echo "Error, -f: Not an integer: ${1}"
+				exit 1
+			fi
+			if [ "${1}" -lt "1" ]; then
+				echo "Error, -f: Must be greater than 0"
+				exit 1
+			fi
+			FRAMES="${1}"
+			;;
+		-o)
+			shift
+			if [ ! -d "$( dirname "${1}" )" ]; then
+				echo "Error, -o: Base directory does not exist: $( dirname "${1}" )"
+				exit 1
+			fi
+			OUTFILE="${1}"
+			;;
+		--dry)
+			DRY=1
+			;;
+		-h)
+			print_usage
+			exit 0
+			;;
+		-v)
+			print_version
+			exit 0
+			;;
+		*)
+			echo "Invalid argument: '${1}'"
+			echo "Type '${0} -h' for available options."
+			exit 1
+			;;
+	esac
+	shift
+done
+
+
+if [ -z "${INFILE+x}" ]; then
+	echo "Error, -i: is required."
+	echo "Usage: ${INFO_NAME} -h"
+	exit 1
+fi
+
+
+if [ -z "${WIDTH+x}" ]; then
+	WIDTH=${DEFAULT_WIDTH}
+fi
+if [ -z "${FRAMES+x}" ]; then
+	FRAMES=${DEFAULT_FRAMES}
+fi
+if [ -z "${OUTFILE+x}" ]; then
+	OUTFILE="${INFILE}"
+fi
+
+
+PALETTE="$( mktemp --suffix '.png' )"
+CMD_RUN_1="ffmpeg -y -i \"${INFILE}\" -vf fps=${FRAMES},scale=${WIDTH}:-1:flags=lanczos,palettegen \"${PALETTE}\" 2>/dev/null"
+CMD_RUN_2="ffmpeg -i \"${INFILE}\" -i \"${PALETTE}\" -filter_complex \"fps=${FRAMES},scale=${WIDTH}:-1:flags=lanczos[x];[x][1:v]paletteuse\" \"${OUTFILE}.gif\""
+
+if [ "${DRY}" = "0" ]; then
+	eval "${CMD_RUN_1}"
+	eval "${CMD_RUN_2}"
+else
+	echo "---- Pass 1/2 ----"
+	echo "${CMD_RUN_1}"
+	echo "---- Pass 2/2 ----"
+	echo "${CMD_RUN_2}"
+fi
+rm "${PALETTE}"

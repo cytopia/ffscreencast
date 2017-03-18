@@ -214,18 +214,11 @@ Showing screen recording with and without camera overlay.
 
 This section will be updated whenever questions arise that are worth mentioning here
 
-### 5.1 How to output to Gif?
+### 5.1 How to convert to other formats?
 
-There is currently no built-in gif support, mainly because it will not produce such a good quality. It is recommended to first create your screencast with the best possible quality and least possible resources (you are obviously going to do something and will not want to consume all your cpu for the encoding) and afterwards convert it to a high quality gif.
+There is currently no built-in gif support, mainly because it will not produce such a good quality. It is recommended to first create your screencast with the best possible quality and least possible resources (you are obviously going to do something and will not want to consume all your cpu for the encoding) and afterwards convert it to a high quality gif or other formats.
 
-**How can you create a high quality gif?**
-
-This is best done in a two-way encoding:
-
-1. Extracting the color palette out of the original video
-2. Converting the video to a gif by applying the extracted color palette
-
-I have thrown together a small script, that will do that for you and is even capable of resizing the video. Head over to my **[Thunar Custom Actions](https://github.com/cytopia/thunar-custom-actions)** and look for `thunar-video-to-gif.sh`. This script is able to work with a gui (`zenity` required) or purely via command line (`-c` option). Both versions work on Linux and OSX.
+See [contrib](contrib/) for converters and feel free to add more.
 
 
 ### 5.2 How to enable cursor capturing on OSX?
