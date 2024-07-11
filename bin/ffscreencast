@@ -103,6 +103,7 @@ AWK="$(which awk 2> /dev/null)"
 SED="$(which sed 2> /dev/null)"
 FFMPEG="$(which ffmpeg 2> /dev/null)"
 UNAME="$(uname 2> /dev/null)"
+SORT="$(which sort 2> /dev/null)"
 
 
 
@@ -358,6 +359,18 @@ print_requirements() {
 			echo "          + Desktop recording possible."
 		fi
 
+		if ! can_screen_list; then
+			echo "[ERR]  [Linux]: xrandr not found."
+			echo "          - Screen listing not possible."
+			echo
+			echo "       Debian: apt-get x11-xserver-utils"
+			echo "       CentOS: yum install xorg-x11-server-utils"
+			echo "       Arch:   pacman -S xorg-xrandr"
+		else
+			echo "[OK]   [Linux]: xrandr found: $(which xrandr)"
+			echo "          + Screen listing possible."
+		fi
+
 		if ! can_audio_record; then
 			echo "[WARN] [Linux]: arecord not found."
 			echo "          - Sound recording not possible."
@@ -457,6 +470,25 @@ can_screen_record() {
 	return "${EXIT_ERR}"
 }
 
+can_screen_list() {
+	if [ "${UNAME}" = "Darwin" ]; then
+		if ! can_screen_record; then
+			return "${EXIT_ERR}"
+		else
+			return "${EXIT_OK}"
+		fi
+	elif [ "${UNAME}" = "Linux" ]; then
+		if ! command -v xrandr > /dev/null 2>&1; then
+			return "${EXIT_ERR}"
+		else
+			return "${EXIT_OK}"
+		fi
+	fi
+
+	# Hmm, no supported OS found, not good!
+	return "${EXIT_ERR}"
+}
+
 can_audio_record() {
 	# TODO: Check if audio devices are available
 
@@ -517,7 +549,8 @@ get_screen_device_names() {
 	if [ "$(uname)" = "Darwin" ]; then
 		DEVICE_NAMES="paste <(echo \"\$(ffmpeg -f avfoundation -list_devices true -i '' 2>&1 | $GREP 'AVFoundation input' | $SED -n '/AVFoundation video/,/AVFoundation audio/p' | $GREP -oE '\[[0-9]\].*$' | $GREP 'Capture screen')\") <(echo \"\$(system_profiler SPDisplaysDataType | $SED -n '/^\s.*Displays:$/,\$p' | $GREP -vE '^\s.*Displays:$' | $GREP -E '^\s.*w*:$|Resolution:' | $SED 'N;s/\n/ /' | $SED 's/ \{1,\}/ /g' | $SED 's/^[ \t ]*//;s/[ \t ]*$//')\")"
 	elif [ "$(uname)" = "Linux" ]; then
-		DEVICE_NAMES="xdpyinfo | $GREP -A 1 -E '^screen #[0-9]*:' | $GREP -vE '^\-\-' | $SED 'N;s/\n/ /' | $SED 's/dimensions://g' | $SED 's/ \{1,\}/ /g' | $AWK '{printf \"[%d] %s\n\", NR, \$0}'"
+		# The intermediate `sed ... | sort ... | sed ...` ensures the `primary` display is always item [1].
+		DEVICE_NAMES="xrandr | $GREP ' connected' | $SED 's/^/1#/; s/^1#\(.* primary .*\)\$/0#\1/;' | $SORT -t '#' -k1n | $SED 's/^[01]#//;' |  $AWK '{printf \"[%d] %s\n\", NR, \$0}'"
 	fi
 	if [ "${1}" = "yes" ]; then echo "${DEVICE_NAMES}"; else eval "${DEVICE_NAMES}"; fi
 }
@@ -707,15 +740,29 @@ get_screen_resolution() {
 	if [ "$(uname)" = "Darwin" ]; then
 		resolution="$(get_screen_device_names | $GREP "\[${screen_device_index}\]" | $GREP -oE '[0-9]*\sx\s[0-9]*' | $SED 's/\s//g')"
 	elif [ "$(uname)" = "Linux" ]; then
-		# ShellCheck does not recognize awk, as we are using it in a variable
-		# shellcheck disable=SC2016
-		resolution="$(get_screen_device_names | $GREP "\[${screen_device_index}\]" | $GREP -oE '[0-9]*x[0-9]*\spixels' | $AWK '{print $1}')"
+		resolution="$(get_screen_device_names | $GREP "\[${screen_device_index}\]" | $GREP -oE '[0-9]+x[0-9]+')"
 	fi
 
 	# Format: [0-9].*x[0-9].* (e.g.: 640x480)
 	echo "${resolution}"
 }
 
+
+#
+# Get offset of chosen screen (monitor)
+#
+# @param	integer		Screen device index
+get_screen_offset() {
+	screen_device_index=$1
+
+	if [ "$(uname)" = "Darwin" ]; then
+		offset=""
+	elif [ "$(uname)" = "Linux" ]; then
+		offset="$(get_screen_device_names | $GREP "\[${screen_device_index}\]" | $GREP -oE '[0-9]+x[0-9]+\+[0-9]+\+[0-9]+' | $SED 's/^[0-9]*x[0-9]*+//; s/+/,/; s/^/+/;')"
+	fi
+
+	echo "${offset}"
+}
 
 
 #
@@ -957,7 +1004,7 @@ fi
 
 # Check 'list devices' requirements
 if [ "${LIST_SCREEN_DEVS}" = "yes" ]; then
-	if ! can_screen_record; then
+	if ! can_screen_list; then
 		echo "Cannot list screen devices. Test requirements with:"
 		echo "${INFO_NAME} --test"
 		exit "${EXIT_ERR}"
@@ -978,7 +1025,7 @@ if [ "${LIST_CAMERA_DEVS}" = "yes" ]; then
 	fi
 fi
 if [ "${LIST_ALL_DEVS}" = "yes" ]; then
-	if ! can_screen_record; then
+	if ! can_screen_list; then
 		echo "Cannot list screen devices. Test requirements with:"
 		echo "${INFO_NAME} --test"
 		exit "${EXIT_ERR}"
@@ -1176,8 +1223,7 @@ elif [ "${UNAME}" = "Linux" ]; then
 		camera_fix=""
 	fi
 
-	screen_device=":0.0"
-
+	screen_device=":0.0$(get_screen_offset  "${screen_device}")"
 fi
 
 
@@ -1227,4 +1273,3 @@ else
 	echo "$FFMPEG"
 	eval "$FFMPEG"
 fi
-
