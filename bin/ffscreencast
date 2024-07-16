@@ -40,7 +40,7 @@ TIME=$(date +%H.%M.%S)
 NAME="Screencast ${DATE} at ${TIME}"
 
 # Where to save it
-DIR="${HOME}/Desktop"
+DIR="${HOME}/Desktop/"
 
 
 
@@ -124,6 +124,32 @@ EXIT_OK="0"
 ################################################################################
 
 
+###############################################################################
+# Timer Funtion
+###############################################################################
+
+# Main function to run the timer
+run_timer() {
+    start_time=$SECONDS
+    # display_timer="$(echo -ne "$(date -u --date @$((SECONDS - start_time)) +%H:%M:%S)\r")"
+    while true; do
+        echo -ne "$(date -u --date @$((SECONDS - start_time)) +%H:%M:%S)\r"
+        sleep 1
+    done
+}
+
+# Trap CTRL+C to stop the timer and exit
+trap_ctrlc() {
+    echo -e "\nRecording stopped."
+    exit
+}
+
+# Set up trap to catch CTRL+C and call trap_ctrlc function
+trap trap_ctrlc INT
+
+# Main script starts here
+echo "Press CTRL+C to stop the recording."
+
 ################################################################################
 # Helper Function
 ################################################################################
@@ -153,52 +179,58 @@ write_config() {
 			$(which mkdir) -p "${dir}"
 		fi
 
-		echo "# ~/.config/ffscreencast/ffscreencastrc" > "${conf}"
-		echo >> "${conf}"
+		{
+			echo "# ~/.config/ffscreencast/ffscreencastrc"
+			echo
 
-		echo "# Default video container extension" >> "${conf}"
-		echo "# Alternatively: 'mp4' or 'avi'" >> "${conf}"
-		echo "OUTPUT_EXT=\"mkv\"" >> "${conf}"
-		echo >> "${conf}"
+			echo "# Default Directory to save video files"
+			echo "DIR=\"$HOME/Desktop\""
+			echo
 
-		echo "# Default audio output codec" >> "${conf}"
-		echo "# Alternatively: 'pcm_s16le'" >> "${conf}"
-		echo "OUTPUT_ACODEC=\"libfaac\"" >> "${conf}"
-		echo >> "${conf}"
+			echo "# Default video container extension"
+			echo "# Alternatively: 'mp4' or 'avi'"
+			echo "OUTPUT_EXT=\"mkv\""
+			echo
 
-		echo "# Default video output codec" >> "${conf}"
-		echo "# Alternatively: 'libx265'" >> "${conf}"
-		echo "OUTPUT_VCODEC=\"libx264\"" >> "${conf}"
-		echo >> "${conf}"
+			echo "# Default audio output codec"
+			echo "# Alternatively: 'pcm_s16le'"
+			echo "OUTPUT_ACODEC=\"libfaac\""
+			echo
+
+			echo "# Default video output codec"
+			echo "# Alternatively: 'libx265'"
+			echo "OUTPUT_VCODEC=\"libx264\""
+			echo
 
 
-		echo "# Default Screen recording arguments" >> "${conf}"
-		echo "S_ARGS=\"\"" >> "${conf}"
-		echo >> "${conf}"
+			echo "# Default Screen recording arguments"
+			echo "S_ARGS=\"\""
+			echo
 
-		echo "# Default audio recording arguments" >> "${conf}"
-		echo "A_ARGS=\"-ac 2\"" >> "${conf}"
-		echo >> "${conf}"
+			echo "# Default audio recording arguments"
+			echo "A_ARGS=\"-ac 2\""
+			echo
 
-		echo "# Default camera recording arguments" >> "${conf}"
-		echo "C_ARGS=\"\"" >> "${conf}"
-		echo >> "${conf}"
+			echo "# Default camera recording arguments"
+			echo "C_ARGS=\"\""
+			echo
 
-		echo "# Default misc output arguments" >> "${conf}"
-		echo "O_ARGS=\"-crf 0 -preset ultrafast\"" >> "${conf}"
-		echo >> "${conf}"
+			echo "# Default misc output arguments"
+			echo "O_ARGS=\"-crf 0 -preset ultrafast\""
+			echo
 
-		echo "# Default recording behavior" >> "${conf}"
-		echo "RECORD_S=\"yes\"" >> "${conf}"
-		echo "RECORD_A=\"no\"" >> "${conf}"
-		echo "RECORD_C=\"no\"" >> "${conf}"
-		echo >> "${conf}"
+			echo "# Default recording behavior"
+			echo "RECORD_S=\"yes\""
+			echo "RECORD_A=\"no\""
+			echo "RECORD_C=\"no\""
+			echo
 
-		echo "# What listed device number has been chosen to record?" >> "${conf}"
-		echo "CHOSEN_S_NUM=\"\"" >> "${conf}"
-		echo "CHOSEN_A_NUM=\"\"" >> "${conf}"
-		echo "CHOSEN_C_NUM=\"\"" >> "${conf}"
-		echo >> "${conf}"
+			echo "# What listed device number has been chosen to record?"
+			echo "CHOSEN_S_NUM=\"\""
+			echo "CHOSEN_A_NUM=\"\""
+			echo "CHOSEN_C_NUM=\"\""
+			echo
+		} > "${conf}"
 	fi
 
 }
@@ -220,6 +252,7 @@ print_usage() {
 	printf "%s %s %s\n" "      " "${INFO_NAME}" "--help"
 	printf "%s %s %s\n" "      " "${INFO_NAME}" "--version"
 	printf "%s %s %s\n" "      " "${INFO_NAME}" "--test"
+	printf "%s %s %s\n" "      " "${INFO_NAME}" "--output-file"
 }
 
 #
@@ -273,6 +306,9 @@ print_help() {
 	echo "                  Specify additional ffmpeg arguments for the output encoding."
 	echo "                  Use: --oargs=\"-crf 0\""
 	echo "                  Default: '-crf 0 -preset ultrafast'"
+	echo
+	echo "-o <filename>	Output video file name"
+	echo "			E.g.: -o myfile, or -o recording1"
 	echo
 	echo
 	echo "Behavior options:"
@@ -859,6 +895,11 @@ while [ $# -gt 0  ]; do
 		-e[a-z]*)
 			OUTPUT_EXT="$(echo "$1" | $SED 's/^..//g')"
 			;;
+		-o*)
+			shift
+			NAME="$1"
+			run_timer &
+			;;
 
 
 
@@ -1183,7 +1224,7 @@ fi
 
 
 #FFMPEG="ffmpeg"
-FFMPEG="${FFMPEG} -hide_banner -loglevel info"
+FFMPEG="${FFMPEG} -hide_banner -v quiet"
 
 # Video Options
 FFMPEG="${FFMPEG} -thread_queue_size 512"
@@ -1227,4 +1268,3 @@ else
 	echo "$FFMPEG"
 	eval "$FFMPEG"
 fi
-
